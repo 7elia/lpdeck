@@ -38,7 +38,16 @@ public class Lpdeck implements Closeable {
         this.spotify.start();
 
         Voicemeeter.init(System.getProperty("os.arch").contains("64"));
-        Voicemeeter.login();
+        try {
+            Voicemeeter.login();
+        } catch (VoicemeeterException ignored) {
+            Voicemeeter.runVoicemeeter(2);
+            LOGGER.info("Voicemeeter not opened yet, waiting...");
+            Thread.sleep(1000);
+            LOGGER.info("Done waiting for Voicemeeter");
+            Voicemeeter.logout();
+            Voicemeeter.login();
+        }
 
         this.busMuted = Voicemeeter.getParameterFloat("Bus[3].Mute") == 1.0F;
         this.usingMainMic = Voicemeeter.getParameterFloat("Strip[0].B1") == 1.0F;
