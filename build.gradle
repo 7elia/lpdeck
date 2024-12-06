@@ -1,0 +1,38 @@
+plugins {
+    id "java"
+    id "io.freefair.lombok" version "8.11"
+}
+
+group = "me.elia.lpdeck"
+version = "1.0"
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs("lib")
+    }
+}
+
+dependencies {
+    implementation "net.thecodersbreakfast.lp4j:lp4j-api:1.0"
+    implementation "net.thecodersbreakfast.lp4j:lp4j-midi:1.0"
+
+    implementation "org.apache.logging.log4j:log4j-core:2.24.2"
+    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:2.24.2"
+
+    implementation "org.java-websocket:Java-WebSocket:1.5.7"
+    implementation "me.mattco:voicemeeter:1.0"
+    implementation "net.java.dev.jna:jna:5.15.0"
+
+    implementation "org.jetbrains:annotations:26.0.1"
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE;
+    manifest {
+        attributes "Main-Class": "me.elia.lpdeck.Main"
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
