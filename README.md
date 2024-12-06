@@ -26,10 +26,6 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 - **0**: Restart the Spotify websocket server.
 - **1**: Restart the Voicemeeter connection.
 
-### Buttons (Right)
-
-- **7**: Exit the host application safely.
-
 ### Pads
 
 - **(0, 0)**: Toggle pause in Spotify.

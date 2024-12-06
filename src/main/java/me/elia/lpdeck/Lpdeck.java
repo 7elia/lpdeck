@@ -11,10 +11,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
-public class Lpdeck {
+public class Lpdeck implements Closeable {
     private static final CountDownLatch LATCH = new CountDownLatch(1);
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck");
     private final Launchpad launchpad;
@@ -49,8 +50,6 @@ public class Lpdeck {
     }
 
     private void registerActions() {
-        this.actionRegistry.addAction(new ButtonAction(Button.atRight(7), Color.RED, b -> LATCH.countDown()));
-
         this.actionRegistry.addAction(new ButtonAction(Button.atTop(0), Color.RED, b -> {
             try {
                 this.spotify.stop();
