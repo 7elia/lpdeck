@@ -1,8 +1,6 @@
 package me.elia.lpdeck;
 
 import net.thecodersbreakfast.lp4j.midi.MidiDeviceConfiguration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.sound.midi.*;
 import java.util.ArrayList;
@@ -10,7 +8,6 @@ import java.util.List;
 
 public class DeviceDetector {
     public static final String DEVICE_SIGNATURE = "Launchpad";
-    private static final Logger LOGGER = LogManager.getLogger("Device Detector");
 
     public static MidiDeviceConfiguration detectDevices() throws MidiUnavailableException {
         MidiDevice inputDevice = autodetectInputDevice();

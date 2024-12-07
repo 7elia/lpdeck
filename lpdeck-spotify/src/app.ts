@@ -1,12 +1,24 @@
 class ReconnectableWebSocket {
-    url: string;
-    retryInterval: number;
+    readonly url: string;
+    readonly retryInterval: number;
+    private reconnectLoopId: number;
     socket: WebSocket | null;
 
-    constructor(url: string, retryInterval: number) {
-        this.url = url;
-        this.retryInterval = retryInterval;
+    constructor() {
+        this.url = "ws://127.0.0.1:7542";
+        this.retryInterval = 5000;
+        this.reconnectLoopId = -1;
         this.socket = null;
+
+        Spicetify.Player.addEventListener("onplaypause", () => this.sendPlayerData());
+        Spicetify.Player.addEventListener("songchange", () => this.sendPlayerData());
+        Spicetify.Player.addEventListener("onprogress", () => this.sendPlayerData());
+
+        setInterval(() => {
+            if (!Spicetify.Player.isPlaying()) {
+                this.sendPlayerData();
+            }
+        }, 1000);
     }
 
     connect() {
@@ -15,13 +27,20 @@ class ReconnectableWebSocket {
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established.");
+            this.sendPlayerData();
+            if (this.reconnectLoopId !== -1) {
+                clearInterval(this.reconnectLoopId);
+                this.reconnectLoopId = -1;
+            }
         };
         this.socket.onmessage = (msg: MessageEvent<string>) => {
             this.handleCommand(msg.data.toLowerCase());
         };
         this.socket.onclose = () => {
             console.warn("WebSocket closed. Reconnecting...");
-            this.scheduleReconnect();
+            if (this.reconnectLoopId === -1) {
+                this.reconnectLoopId = setInterval(() => this.connect(), this.retryInterval);
+            }
         };
         this.socket.onerror = () => {
             console.error("WebSocket error. Reconnecting...");
@@ -29,12 +48,9 @@ class ReconnectableWebSocket {
         };
     }
 
-    scheduleReconnect() {
-        setTimeout(() => this.connect(), this.retryInterval);
-    }
-
     handleCommand(command: string) {
         console.log("Got command: " + command);
+
         switch (command) {
             case "toggle_play":
                 Spicetify.Player.togglePlay();
@@ -49,13 +65,31 @@ class ReconnectableWebSocket {
             case "next":
                 Spicetify.Player.next();
                 break;
+            case "toggle_shuffle":
+                Spicetify.Player.toggleShuffle();
+                break;
+            case "toggle_repeat":
+                Spicetify.Player.setRepeat(Spicetify.Player.getRepeat() === 2 ? 1 : 2);
+                break;
         }
+
+        this.sendPlayerData();
+    }
+
+    sendPlayerData() {
+        if (!this.socket || this.socket?.readyState !== WebSocket.OPEN) {
+            return;
+        }
+        this.socket?.send(JSON.stringify({
+            playing: Spicetify.Player.isPlaying(),
+            shuffle: Spicetify.Player.getShuffle(),
+            repeat: Spicetify.Player.getRepeat() === 2
+        }));
     }
 }
 
 async function main() {
-    const socket = new ReconnectableWebSocket("ws://127.0.0.1:7542", 5000);
-    socket.connect();
+    new ReconnectableWebSocket().connect();
 }
 
 export default main;
