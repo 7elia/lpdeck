@@ -9,27 +9,31 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SpotifyServer extends WebSocketServer {
     private static final Logger LOGGER = LogManager.getLogger("Spotify WS");
-    private final List<SpotifyListener> listeners;
+    private final Supplier<List<SpotifyListener>> listeners;
     @Getter private SpotifyState state;
 
-    public SpotifyServer() {
+    public SpotifyServer(Supplier<List<SpotifyListener>> listeners) {
         super(new InetSocketAddress("127.0.0.1", 7542));
-        this.listeners = new ArrayList<>();
+        this.listeners = listeners;
         this.state = new SpotifyState(false, false, false);
     }
 
-    public void addListener(SpotifyListener listener) {
-        this.listeners.add(listener);
+    private void resetState() {
+        this.state = new SpotifyState(false, false, false);
+        for (SpotifyListener listener : this.listeners.get()) {
+            listener.updated(this.state);
+            listener.disconnected(this.getConnections().size());
+        }
     }
 
     @Override
     public final void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
-        for (SpotifyListener listener : this.listeners) {
+        for (SpotifyListener listener : this.listeners.get()) {
             listener.connected();
         }
         LOGGER.info("New client connected to Spotify WS");
@@ -37,18 +41,14 @@ public class SpotifyServer extends WebSocketServer {
 
     @Override
     public final void onClose(WebSocket webSocket, int code, String reason, boolean b) {
-        this.state = new SpotifyState(false, false, false);
-        for (SpotifyListener listener : this.listeners) {
-            listener.updated(this.state);
-            listener.disconnected(this.getConnections().size());
-        }
+        this.resetState();
         LOGGER.info("Client disconnected from Spotify WS: {}", reason.isEmpty() ? "No reason provided" : reason);
     }
 
     @Override
     public final void onMessage(WebSocket webSocket, String message) {
         this.state = new Gson().fromJson(message, SpotifyState.class);
-        for (SpotifyListener listener : this.listeners) {
+        for (SpotifyListener listener : this.listeners.get()) {
             listener.updated(this.state);
         }
     }
@@ -61,5 +61,11 @@ public class SpotifyServer extends WebSocketServer {
     @Override
     public final void onStart() {
         LOGGER.info("Started Spotify WS");
+    }
+
+    @Override
+    public void stop(int timeout, String closeMessage) throws InterruptedException {
+        this.resetState();
+        super.stop(timeout, closeMessage);
     }
 }

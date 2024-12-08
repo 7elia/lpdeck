@@ -24,6 +24,8 @@ public abstract class Action {
     }
 
     public void setColor(Color color) {
-        this.client.getLaunchpadClient().setPadLight(Pad.at(this.x, this.y), color, BackBufferOperation.NONE);
+        try {
+            this.client.getLaunchpadClient().setPadLight(Pad.at(this.x, this.y), color, BackBufferOperation.NONE);
+        } catch (IllegalStateException ignored) {}
     }
 }

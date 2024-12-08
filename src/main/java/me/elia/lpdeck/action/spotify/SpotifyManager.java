@@ -1,7 +1,6 @@
 package me.elia.lpdeck.action.spotify;
 
 import me.elia.lpdeck.action.Manager;
-import me.elia.lpdeck.spotify.SpotifyServer;
 import me.elia.lpdeck.spotify.SpotifyListener;
 import net.thecodersbreakfast.lp4j.api.Color;
 import org.apache.logging.log4j.LogManager;
@@ -13,15 +12,13 @@ public class SpotifyManager extends Manager implements SpotifyListener {
     public SpotifyManager(int pos) {
         super(pos);
         this.client.getSpotify().addListener(this);
-        this.setColor(this.client.getSpotify().getConnections().isEmpty() ? Color.RED : Color.GREEN);
+        this.setColor(this.client.getSpotify().hasConnectedClients() ? Color.GREEN : Color.RED);
     }
 
     @Override
     public void press() {
         try {
-            this.client.getSpotify().stop();
-            this.client.setSpotify(new SpotifyServer());
-            this.client.getSpotify().start();
+            this.client.getSpotify().restartServer();
         } catch (InterruptedException e) {
             LOGGER.error("Couldn't restart Spotify WS", e);
         }
