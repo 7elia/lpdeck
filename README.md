@@ -29,8 +29,11 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 ### Pads
 
 - **(0, 0)**: Toggle pause in Spotify.
-- **(0, 1)**: Skip to previous track in Spotify (or to start of current track if you've listened more than 5 seconds).
-- **(0, 2)**: Skip to next track in Spotify.
+- **(0, 1)**: Toggle repeat song in Spotify.
+- **(0, 2)**: Toggle shuffle in Spotify.
+- **(0, 3)**: Skip to previous song in Spotify.
+- **(0, 4)**: Skip to next song in Spotify.
+---
 - **(1, 0)**: Toggle mute for Bus 4 in Voicemeeter.
 - **(1, 1)**: Switch between input 1 and 2 for B1 in Voicemeeter.
 - **(1, 2)**: Toggle B1 for AUX input in Voicemeeter.
