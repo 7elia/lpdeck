@@ -12,7 +12,6 @@ public class SpotifyManager extends Manager implements SpotifyListener {
     public SpotifyManager(int pos) {
         super(pos);
         this.client.getSpotify().addListener(this);
-        this.setColor(this.client.getSpotify().hasConnectedClients() ? Color.GREEN : Color.RED);
     }
 
     @Override

@@ -17,6 +17,11 @@ public class SpotifyIntegration {
     }
 
     public void addListener(SpotifyListener listener) {
+        if (this.hasConnectedClients()) {
+            listener.connected();
+        } else {
+            listener.disconnected(0);
+        }
         this.listeners.add(listener);
     }
 

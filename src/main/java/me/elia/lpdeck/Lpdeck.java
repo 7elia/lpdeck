@@ -3,12 +3,10 @@ package me.elia.lpdeck;
 import lombok.Getter;
 import me.elia.lpdeck.action.ActionRegistry;
 import me.elia.lpdeck.action.spotify.*;
-import me.elia.lpdeck.action.voicemeeter.ToggleAuxStreamAction;
-import me.elia.lpdeck.action.voicemeeter.ToggleMicAction;
-import me.elia.lpdeck.action.voicemeeter.ToggleMuteAction;
-import me.elia.lpdeck.action.voicemeeter.VoicemeeterManager;
+import me.elia.lpdeck.action.voicemeeter.*;
 import me.elia.lpdeck.spotify.SpotifyIntegration;
 import me.elia.lpdeck.spotify.SpotifyServerCommand;
+import me.elia.lpdeck.voicemeeter.VoicemeeterIntegration;
 import me.mattco.voicemeeter.Voicemeeter;
 import me.mattco.voicemeeter.VoicemeeterException;
 import net.thecodersbreakfast.lp4j.api.*;
@@ -17,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import javax.sound.midi.MidiUnavailableException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -28,7 +27,8 @@ public class Lpdeck implements Closeable {
     private final Launchpad launchpad;
     @Getter private final LaunchpadClient launchpadClient;
     private final ActionRegistry actionRegistry;
-    @Getter @NotNull private final SpotifyIntegration spotify;
+    @Getter private final SpotifyIntegration spotify;
+    @Getter private final VoicemeeterIntegration voicemeeter;
 
     public Lpdeck() throws Exception {
         INSTANCE = this;
@@ -43,17 +43,8 @@ public class Lpdeck implements Closeable {
         this.spotify = new SpotifyIntegration();
         this.spotify.startServer();
 
-        Voicemeeter.init(System.getProperty("os.arch").contains("64"));
-        try {
-            Voicemeeter.login();
-        } catch (VoicemeeterException ignored) {
-            Voicemeeter.runVoicemeeter(2);
-            LOGGER.info("Voicemeeter not opened yet, waiting...");
-            Thread.sleep(1000);
-            LOGGER.info("Done waiting for Voicemeeter");
-            Voicemeeter.logout();
-            Voicemeeter.login();
-        }
+        this.voicemeeter = new VoicemeeterIntegration();
+        this.voicemeeter.start();
 
         this.registerActions();
     }
@@ -74,6 +65,8 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new ToggleMuteAction(1, 0));
         this.actionRegistry.addAction(new ToggleMicAction(1, 1));
         this.actionRegistry.addAction(new ToggleAuxStreamAction(1, 2));
+        this.actionRegistry.addAction(new ToggleLoopbackAction(1, 3));
+        this.actionRegistry.addAction(new ToggleSpeakersAction(1, 4));
     }
 
     public void start() throws InterruptedException {

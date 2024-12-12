@@ -10,7 +10,6 @@ public class ToggleMicAction extends ToggleAction {
 
     @Override
     public void toggle() {
-        Voicemeeter.setParameterFloat("Strip[0].B1", this.value ? 0.0F : 1.0F);
-        Voicemeeter.setParameterFloat("Strip[1].B1", this.value ? 1.0F : 0.0F);
+        this.client.getVoicemeeter().swapMic();
     }
 }
