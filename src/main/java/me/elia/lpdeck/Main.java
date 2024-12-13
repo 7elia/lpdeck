@@ -1,7 +1,8 @@
 package me.elia.lpdeck;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    @SuppressWarnings("resource")
+    public static void main(String[] args) {
         Lpdeck deck = new Lpdeck();
         deck.start();
     }

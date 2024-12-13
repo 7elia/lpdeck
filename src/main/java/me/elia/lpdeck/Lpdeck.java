@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import javax.sound.midi.MidiUnavailableException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -31,13 +32,17 @@ public class Lpdeck implements Closeable {
     @Getter private final VoicemeeterIntegration voicemeeter;
     @Getter private final LpdeckServer server;
 
-    public Lpdeck() throws Exception {
+    public Lpdeck() {
         INSTANCE = this;
 
         LOGGER.info("Starting client");
 
         this.actionRegistry = new ActionRegistry();
-        this.launchpad = new MidiLaunchpad(DeviceDetector.detectDevices());
+        try {
+            this.launchpad = new MidiLaunchpad(DeviceDetector.detectDevices());
+        } catch (MidiUnavailableException ignored) {
+            throw new RuntimeException("Couldn't find input & output devices");
+        }
         this.launchpad.setListener(this.actionRegistry);
         this.launchpadClient = this.launchpad.getClient();
 
@@ -74,7 +79,7 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new DebugAction(2, 0));
     }
 
-    public void start() throws InterruptedException {
+    public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::close, "Shutdown Thread"));
 
         try {
