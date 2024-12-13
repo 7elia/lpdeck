@@ -9,22 +9,25 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 
 ### Features
 
-- Spotify integration.
+- Spotify integration (Requires Spicetify).
 - Voicemeeter integration (I'm using Banana).
+- Discord integration (Requires Vencord). 
 
 ### Installation
 
 - Clone the repository.
 - Run `./gradlew build`.
 - Install [Spicetify](https://spicetify.app/docs/advanced-usage/installation).
+- Install [Vencord](https://vencord.dev/download/)
 - Install the `lpdeck.js` Spicetify extension (found at `lpdeck-spotify/dist`, guide on how to install extensions locally is in the credits section).
 - Make sure your launchpad is plugged into the PC itself. If you're using a USB hub, make sure it is on low power mode, or it won't work consistently (manual can be found in the credits section).
 - Run the .jar file in `build/libs`.
 
 ### Buttons (Top)
 
-- **0**: Restart the Spotify websocket server.
+- **0**: Disconnect all Spotify websockets.
 - **1**: Restart the Voicemeeter connection.
+- **2**: Disconnect all Discord websockets.
 
 ### Pads
 
@@ -37,6 +40,14 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 - **(1, 0)**: Toggle mute for Bus 4 in Voicemeeter.
 - **(1, 1)**: Switch between input 1 and 2 for B1 in Voicemeeter.
 - **(1, 2)**: Toggle B1 for AUX input in Voicemeeter.
+- **(1, 3)**: Toggle A1 for strip 1 or 2 depending on whichever one you're using.
+- **(1, 4)**: Toggle A2 for both virtual inputs.
+---
+- **(2, 0)**: Disconnect from the current voice channel.
+- **(2, 1)**: Toggle self-deafen.
+- **(2, 2)**: Toggle Krisp noise supression.
+- **(2, 3)**: Toggle screenshare (whole screen, with audio).
+- **(2, 4)**: Toggle streamer mode.
 
 ### Credits
 
