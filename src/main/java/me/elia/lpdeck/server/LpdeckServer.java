@@ -18,7 +18,6 @@ import java.util.List;
 
 public class LpdeckServer {
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck WS");
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     @NotNull private WebSocketServerImpl websocket;
 
     public LpdeckServer() {

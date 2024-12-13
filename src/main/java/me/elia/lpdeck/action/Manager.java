@@ -12,8 +12,12 @@ public abstract class Manager {
     public final Lpdeck client;
 
     public Manager(int pos) {
+        this(pos, true);
+    }
+
+    public Manager(int pos, boolean top) {
         this.pos = pos;
-        this.button = Button.atTop(pos);
+        this.button = top ? Button.atTop(pos) : Button.atRight(pos);
         this.client = Lpdeck.getInstance();
     }
 

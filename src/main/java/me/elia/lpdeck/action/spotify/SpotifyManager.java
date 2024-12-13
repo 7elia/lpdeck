@@ -9,7 +9,7 @@ public class SpotifyManager extends Manager implements ServerListener {
     public SpotifyManager(int pos) {
         super(pos);
         ServerTarget.SPOTIFY.addListener(this);
-        this.setColor(Color.RED);
+        this.setColor(this.client.getServer().hasClientsFor(ServerTarget.SPOTIFY) ? Color.GREEN : Color.RED);
     }
 
     @Override

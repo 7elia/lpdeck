@@ -13,7 +13,7 @@ public class TogglePlayAction extends ToggleAction implements ServerListener {
 
     @Override
     public void toggle() {
-        ServerTarget.SPOTIFY.sendCommand("toggle_play");;
+        ServerTarget.SPOTIFY.sendCommand("toggle_play");
     }
 
     @Override

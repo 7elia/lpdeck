@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.elia.lpdeck.action.ActionRegistry;
 import me.elia.lpdeck.action.CommandAction;
 import me.elia.lpdeck.action.discord.DebugAction;
+import me.elia.lpdeck.action.other.ServerManager;
 import me.elia.lpdeck.action.spotify.*;
 import me.elia.lpdeck.action.voicemeeter.*;
 import me.elia.lpdeck.server.LpdeckServer;
@@ -54,6 +55,8 @@ public class Lpdeck implements Closeable {
     }
 
     private void registerActions() {
+        this.actionRegistry.addManager(new ServerManager(7));
+
         this.actionRegistry.addManager(new SpotifyManager(0));
         this.actionRegistry.addAction(new TogglePlayAction(0, 0));
         this.actionRegistry.addAction(new ToggleRepeatAction(0, 1));
@@ -74,7 +77,11 @@ public class Lpdeck implements Closeable {
     public void start() throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(new Thread(this::close, "Shutdown Thread"));
 
-        LATCH.await();
+        try {
+            LATCH.await();
+        } catch (InterruptedException e) {
+            LOGGER.warn("Interrupted while awaiting latch, program will shut down...");
+        }
     }
 
     public void close() {
