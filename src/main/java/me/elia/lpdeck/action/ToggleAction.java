@@ -5,6 +5,10 @@ import net.thecodersbreakfast.lp4j.api.Color;
 public abstract class ToggleAction extends Action {
     public boolean value;
 
+    public ToggleAction(int x, int y) {
+        this(x, y, false);
+    }
+
     public ToggleAction(int x, int y, boolean value) {
         super(x, y);
         this.value = value;

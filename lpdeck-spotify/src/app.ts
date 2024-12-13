@@ -27,6 +27,10 @@ class ReconnectableWebSocket {
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established.");
+            this.socket?.send(JSON.stringify({
+                target: "spotify",
+                type: "target"
+            }));
             this.sendPlayerData();
             if (this.reconnectLoopId !== -1) {
                 clearInterval(this.reconnectLoopId);
@@ -81,9 +85,13 @@ class ReconnectableWebSocket {
             return;
         }
         this.socket?.send(JSON.stringify({
-            playing: Spicetify.Player.isPlaying(),
-            shuffle: Spicetify.Player.getShuffle(),
-            repeat: Spicetify.Player.getRepeat() === 2
+            target: "spotify",
+            type: "sync",
+            data: {
+                playing: Spicetify.Player.isPlaying(),
+                shuffle: Spicetify.Player.getShuffle(),
+                repeat: Spicetify.Player.getRepeat() === 2
+            }
         }));
     }
 }

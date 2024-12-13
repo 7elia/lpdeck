@@ -2,20 +2,20 @@ package me.elia.lpdeck;
 
 import lombok.Getter;
 import me.elia.lpdeck.action.ActionRegistry;
+import me.elia.lpdeck.action.CommandAction;
+import me.elia.lpdeck.action.discord.DebugAction;
 import me.elia.lpdeck.action.spotify.*;
 import me.elia.lpdeck.action.voicemeeter.*;
-import me.elia.lpdeck.spotify.SpotifyIntegration;
-import me.elia.lpdeck.spotify.SpotifyServerCommand;
+import me.elia.lpdeck.server.LpdeckServer;
+import me.elia.lpdeck.server.ServerTarget;
 import me.elia.lpdeck.voicemeeter.VoicemeeterIntegration;
 import me.mattco.voicemeeter.Voicemeeter;
-import me.mattco.voicemeeter.VoicemeeterException;
 import net.thecodersbreakfast.lp4j.api.*;
 import net.thecodersbreakfast.lp4j.midi.MidiLaunchpad;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-import javax.sound.midi.MidiUnavailableException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
@@ -27,8 +27,8 @@ public class Lpdeck implements Closeable {
     private final Launchpad launchpad;
     @Getter private final LaunchpadClient launchpadClient;
     private final ActionRegistry actionRegistry;
-    @Getter private final SpotifyIntegration spotify;
     @Getter private final VoicemeeterIntegration voicemeeter;
+    @Getter private final LpdeckServer server;
 
     public Lpdeck() throws Exception {
         INSTANCE = this;
@@ -40,8 +40,8 @@ public class Lpdeck implements Closeable {
         this.launchpad.setListener(this.actionRegistry);
         this.launchpadClient = this.launchpad.getClient();
 
-        this.spotify = new SpotifyIntegration();
-        this.spotify.startServer();
+        this.server = new LpdeckServer();
+        this.server.start();
 
         this.voicemeeter = new VoicemeeterIntegration();
         this.voicemeeter.start();
@@ -58,8 +58,8 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new TogglePlayAction(0, 0));
         this.actionRegistry.addAction(new ToggleRepeatAction(0, 1));
         this.actionRegistry.addAction(new ToggleShuffleAction(0, 2));
-        this.actionRegistry.addAction(new SpotifyCommandAction(0, 3, SpotifyServerCommand.PREVIOUS));
-        this.actionRegistry.addAction(new SpotifyCommandAction(0, 4, SpotifyServerCommand.NEXT));
+        this.actionRegistry.addAction(new CommandAction(0, 3, ServerTarget.SPOTIFY, "previous"));
+        this.actionRegistry.addAction(new CommandAction(0, 4, ServerTarget.SPOTIFY, "next"));
 
         this.actionRegistry.addManager(new VoicemeeterManager(1));
         this.actionRegistry.addAction(new ToggleMuteAction(1, 0));
@@ -67,6 +67,8 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new ToggleAuxStreamAction(1, 2));
         this.actionRegistry.addAction(new ToggleLoopbackAction(1, 3));
         this.actionRegistry.addAction(new ToggleSpeakersAction(1, 4));
+
+        this.actionRegistry.addAction(new DebugAction(2, 0));
     }
 
     public void start() throws InterruptedException {
@@ -84,11 +86,9 @@ public class Lpdeck implements Closeable {
         } catch (IOException e) {
             LOGGER.error("Error while closing launchpad", e);
         }
-        try {
-            this.spotify.stopServer();
-        } catch (InterruptedException e) {
-            LOGGER.error("Error while closing Spotify WS", e);
-        }
+
+        this.server.stop();
+
         Voicemeeter.logout();
     }
 }

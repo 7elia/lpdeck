@@ -1,25 +1,24 @@
 package me.elia.lpdeck.action.spotify;
 
-import me.elia.lpdeck.Lpdeck;
+import com.google.gson.JsonObject;
 import me.elia.lpdeck.action.ToggleAction;
-import me.elia.lpdeck.spotify.SpotifyListener;
-import me.elia.lpdeck.spotify.SpotifyServerCommand;
-import me.elia.lpdeck.spotify.SpotifyState;
+import me.elia.lpdeck.server.ServerListener;
+import me.elia.lpdeck.server.ServerTarget;
 
-public class ToggleRepeatAction extends ToggleAction implements SpotifyListener {
+public class ToggleRepeatAction extends ToggleAction implements ServerListener {
     public ToggleRepeatAction(int x, int y) {
-        super(x, y, Lpdeck.getInstance().getSpotify().getState().isRepeat());
-        this.client.getSpotify().addListener(this);
+        super(x, y);
+        ServerTarget.SPOTIFY.addListener(this);
     }
 
     @Override
     public void toggle() {
-        this.client.getSpotify().sendCommand(SpotifyServerCommand.TOGGLE_REPEAT);
+        ServerTarget.SPOTIFY.sendCommand("toggle_repeat");
     }
 
     @Override
-    public void updated(SpotifyState state) {
-        this.value = state.isRepeat();
+    public void onDataSync(JsonObject data) {
+        this.value = data.get("repeat").getAsBoolean();
         this.setColor();
     }
 }
