@@ -3,9 +3,10 @@ package me.elia.lpdeck;
 import lombok.Getter;
 import me.elia.lpdeck.action.ActionRegistry;
 import me.elia.lpdeck.action.CommandAction;
-import me.elia.lpdeck.action.discord.DebugAction;
-import me.elia.lpdeck.action.other.ServerManager;
-import me.elia.lpdeck.action.spotify.*;
+import me.elia.lpdeck.action.ServerManager;
+import me.elia.lpdeck.action.SyncedToggleAction;
+import me.elia.lpdeck.action.discord.PatchAction;
+import me.elia.lpdeck.action.other.WebSocketManager;
 import me.elia.lpdeck.action.voicemeeter.*;
 import me.elia.lpdeck.server.LpdeckServer;
 import me.elia.lpdeck.server.ServerTarget;
@@ -52,6 +53,8 @@ public class Lpdeck implements Closeable {
         this.voicemeeter = new VoicemeeterIntegration();
         this.voicemeeter.start();
 
+        DiscordPatcher.patch();
+
         this.registerActions();
     }
 
@@ -60,12 +63,12 @@ public class Lpdeck implements Closeable {
     }
 
     private void registerActions() {
-        this.actionRegistry.addManager(new ServerManager(7));
+        this.actionRegistry.addManager(new WebSocketManager(7));
 
-        this.actionRegistry.addManager(new SpotifyManager(0));
-        this.actionRegistry.addAction(new TogglePlayAction(0, 0));
-        this.actionRegistry.addAction(new ToggleRepeatAction(0, 1));
-        this.actionRegistry.addAction(new ToggleShuffleAction(0, 2));
+        this.actionRegistry.addManager(new ServerManager(0, ServerTarget.SPOTIFY));
+        this.actionRegistry.addAction(new SyncedToggleAction(0, 0, ServerTarget.SPOTIFY, "toggle_play", "playing"));
+        this.actionRegistry.addAction(new SyncedToggleAction(0, 1, ServerTarget.SPOTIFY, "toggle_repeat", "repeat"));
+        this.actionRegistry.addAction(new SyncedToggleAction(0, 2, ServerTarget.SPOTIFY, "toggle_shuffle", "shuffle"));
         this.actionRegistry.addAction(new CommandAction(0, 3, ServerTarget.SPOTIFY, "previous"));
         this.actionRegistry.addAction(new CommandAction(0, 4, ServerTarget.SPOTIFY, "next"));
 
@@ -76,7 +79,13 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new ToggleLoopbackAction(1, 3));
         this.actionRegistry.addAction(new ToggleSpeakersAction(1, 4));
 
-        this.actionRegistry.addAction(new DebugAction(2, 0));
+        this.actionRegistry.addManager(new ServerManager(2, ServerTarget.DISCORD));
+        this.actionRegistry.addAction(new SyncedToggleAction(2, 0, ServerTarget.DISCORD, "disconnect", "connected"));
+        this.actionRegistry.addAction(new SyncedToggleAction(2, 1, ServerTarget.DISCORD, "toggle_deafen", "deafened"));
+        this.actionRegistry.addAction(new SyncedToggleAction(2, 2, ServerTarget.DISCORD, "toggle_krisp", "krisp"));
+        this.actionRegistry.addAction(new SyncedToggleAction(2, 3, ServerTarget.DISCORD, "toggle_screenshare", "screensharing"));
+        this.actionRegistry.addAction(new SyncedToggleAction(2, 4, ServerTarget.DISCORD, "toggle_streamer_mode", "streamer_mode"));
+        this.actionRegistry.addAction(new PatchAction(2, 5));
     }
 
     public void start() {

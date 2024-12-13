@@ -4,6 +4,20 @@ class ReconnectableWebSocket {
         this.retryInterval = 5000;
         this.reconnectLoopId = -1;
         this.socket = null;
+
+        this.ApplicationStreamingSettingsStore = findStore("ApplicationStreamingSettingsStore");
+        this.StreamRTCConnectionStore = findStore("StreamRTCConnectionStore");
+        this.StreamerModeStore = findStore("StreamerModeStore");
+        this.MediaEngineStore = findStore("MediaEngineStore");
+        this.VoiceStateStore = findStore("VoiceStateStore");
+        this.ChannelStore = findStore("ChannelStore");
+
+        FluxDispatcher.subscribe("TRACK", () => this.sendAppData());
+        FluxDispatcher.subscribe("VOICE_STATE_UPDATES", () => this.sendAppData());
+        FluxDispatcher.subscribe("STREAM_CREATE", () => this.sendAppData());
+        FluxDispatcher.subscribe("AUDIO_SET_NOISE_CANCELLATION", () => this.sendAppData());
+        FluxDispatcher.subscribe("AUDIO_SET_NOISE_SUPPRESSION", () => this.sendAppData());
+        FluxDispatcher.subscribe("STREAMER_MODE_UPDATE", () => this.sendAppData());
     }
 
     connect() {
@@ -12,6 +26,10 @@ class ReconnectableWebSocket {
 
         this.socket.onopen = () => {
             console.log("WebSocket connection established.");
+            this.socket.send(JSON.stringify({
+                target: "discord",
+                type: "target"
+            }));
             this.sendAppData();
             if (this.reconnectLoopId !== -1) {
                 clearInterval(this.reconnectLoopId);
@@ -33,11 +51,105 @@ class ReconnectableWebSocket {
         };
     }
 
-    handleCommand(command) {
+    async handleCommand(command) {
         console.log("Got command: " + command);
 
-        // switch (command) {
-        // }
+        switch (command) {
+            case "disconnect":
+                findByProps("selectVoiceChannel", "selectChannel").disconnect();
+                break;
+            case "toggle_deafen":
+                FluxDispatcher.dispatch({
+                    type: "AUDIO_TOGGLE_SELF_DEAF",
+                    context: "default",
+                    syncRemote: true
+                });
+                break;
+            case "toggle_krisp":
+                const modeOptions = this.MediaEngineStore.getModeOptions();
+
+                FluxDispatcher.dispatch({
+                    type: "AUDIO_SET_NOISE_CANCELLATION",
+                    enabled: !modeOptions.vadUseKrisp,
+                    location: { section: "Noise Cancellation Popout" }
+                });
+                FluxDispatcher.dispatch({
+                    type: "AUDIO_SET_NOISE_SUPPRESSION",
+                    enabled: modeOptions.vadUseKrisp,
+                    location: { section: "Noise Cancellation Popout" }
+                });
+
+                FluxDispatcher.dispatch({
+                    type: "AUDIO_SET_MODE",
+                    context: "default",
+                    mode: this.MediaEngineStore.getMode(),
+                    options: {
+                        ...modeOptions,
+                        vadUseKrisp: !modeOptions.vadUseKrisp
+                    }
+                });
+
+                break;
+            case "toggle_screenshare":
+                const voiceState = this.VoiceStateStore.getVoiceStateForUser(meId);
+                if (!voiceState) {
+                    return;
+                } else if (voiceState.selfStream) {
+                    const streamKey = this.StreamRTCConnectionStore.getActiveStreamKey();
+                    FluxDispatcher.dispatch({
+                        type: "STREAM_STOP",
+                        streamKey,
+                        appContext: "app"
+                    });
+                    return;
+                }
+                const channelType = this.ChannelStore.getChannel(voiceState.channelId).type;
+
+                const source = (await this.MediaEngineStore
+                    .getMediaEngine()
+                    .getScreenPreviews(176, 99))
+                    .filter(v => v.name === "Screen 1")[0].id;
+                const streamOptions = this.ApplicationStreamingSettingsStore.getState();
+
+                FluxDispatcher.dispatch({
+                    type: "STREAM_START",
+                    streamType: channelType === 2 ? "guild" : "call",
+                    guildId: channelType === 2 ? "1075709372665172038" : null,
+                    channelId: voiceState.channelId,
+                    appContext: "app",
+                    audioSourceId: null,
+                    pid: null,
+                    previewDisabled: false,
+                    sound: true,
+                    sourceId: source,
+                    sourceName: "Screen 1"
+                });
+
+                FluxDispatcher.dispatch({
+                    type: "MEDIA_ENGINE_SET_GO_LIVE_SOURCE",
+                    settings: {
+                        desktopSettings: {
+                            sourceId: source,
+                            sound: streamOptions.soundshareEnabled
+                        },
+                        qualityOptions: {
+                            preset: streamOptions.preset,
+                            resolution: streamOptions.resolution,
+                            frameRate: streamOptions.fps
+                        },
+                        context: "stream"
+                    }
+                });
+
+                break;
+            case "toggle_streamer_mode":
+                FluxDispatcher.dispatch({
+                    type: "STREAMER_MODE_UPDATE",
+                    key: "enabled",
+                    value: !this.StreamerModeStore.enabled
+                });
+                break;
+        }
 
         this.sendAppData();
     }
@@ -46,12 +158,23 @@ class ReconnectableWebSocket {
         if (!this.socket || this.socket?.readyState !== WebSocket.OPEN) {
             return;
         }
+        const voiceState = this.VoiceStateStore.getVoiceStateForUser(meId);
+        const modeOptions = this.MediaEngineStore.getModeOptions();
         this.socket?.send(JSON.stringify({
-            
+            target: "discord",
+            type: "sync",
+            data: {
+                connected: !!voiceState,
+                deafened: !voiceState ? false : voiceState.selfDeaf,
+                krisp: modeOptions.vadUseKrisp,
+                screensharing: !voiceState ? false : voiceState.selfStream,
+                streamer_mode: this.StreamerModeStore.enabled
+            }
         }));
     }
 }
 
-Vencord.Plugins.plugins.ConsoleShortcuts.start();
-
-new ReconnectableWebSocket().connect();
+setTimeout(() => {
+    Vencord.Plugins.plugins.ConsoleShortcuts.start();
+    new ReconnectableWebSocket().connect();
+}, 5000);

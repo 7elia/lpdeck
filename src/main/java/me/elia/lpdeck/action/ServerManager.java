@@ -1,20 +1,22 @@
-package me.elia.lpdeck.action.spotify;
+package me.elia.lpdeck.action;
 
-import me.elia.lpdeck.action.Manager;
 import me.elia.lpdeck.server.ServerListener;
 import me.elia.lpdeck.server.ServerTarget;
 import net.thecodersbreakfast.lp4j.api.Color;
 
-public class SpotifyManager extends Manager implements ServerListener {
-    public SpotifyManager(int pos) {
+public class ServerManager extends Manager implements ServerListener {
+    private final ServerTarget target;
+
+    public ServerManager(int pos, ServerTarget target) {
         super(pos);
-        ServerTarget.SPOTIFY.addListener(this);
-        this.setColor(this.client.getServer().hasClientsFor(ServerTarget.SPOTIFY) ? Color.GREEN : Color.RED);
+        this.target = target;
+        this.target.addListener(this);
+        this.setColor(this.client.getServer().hasClientsFor(this.target) ? Color.GREEN : Color.RED);
     }
 
     @Override
     public void press() {
-        this.client.getServer().closeTarget(ServerTarget.SPOTIFY);
+        this.client.getServer().closeTarget(this.target);
     }
 
     @Override

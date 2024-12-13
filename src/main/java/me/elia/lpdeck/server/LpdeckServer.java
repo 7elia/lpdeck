@@ -120,6 +120,7 @@ public class LpdeckServer {
                 case "sync":
                     if (message.has("data")) {
                         LpdeckServer.this.onSync(ServerTarget.of(message.get("target").getAsString()), message.get("data").getAsJsonObject());
+                        LOGGER.debug("New sync data for target {}", target);
                     }
                     break;
                 case "target":
@@ -127,6 +128,7 @@ public class LpdeckServer {
                     for (ServerListener listener : target.getListeners()) {
                         listener.onClientConnected();
                     }
+                    LOGGER.info("New connection registered for target {}", target);
                     break;
             }
         }
