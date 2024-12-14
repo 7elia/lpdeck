@@ -103,27 +103,14 @@ class ReconnectableWebSocket {
                     });
                     return;
                 }
-                const channelType = this.ChannelStore.getChannel(voiceState.channelId).type;
+                const connectedChannel = this.ChannelStore.getChannel(voiceState.channelId);
+                const channelType = connectedChannel.type;
 
                 const source = (await this.MediaEngineStore
                     .getMediaEngine()
                     .getScreenPreviews(176, 99))
                     .filter(v => v.name === "Screen 1")[0].id;
                 const streamOptions = this.ApplicationStreamingSettingsStore.getState();
-
-                FluxDispatcher.dispatch({
-                    type: "STREAM_START",
-                    streamType: channelType === 2 ? "guild" : "call",
-                    guildId: channelType === 2 ? "1075709372665172038" : null,
-                    channelId: voiceState.channelId,
-                    appContext: "app",
-                    audioSourceId: null,
-                    pid: null,
-                    previewDisabled: false,
-                    sound: true,
-                    sourceId: source,
-                    sourceName: "Screen 1"
-                });
 
                 FluxDispatcher.dispatch({
                     type: "MEDIA_ENGINE_SET_GO_LIVE_SOURCE",
@@ -139,6 +126,20 @@ class ReconnectableWebSocket {
                         },
                         context: "stream"
                     }
+                });
+
+                FluxDispatcher.dispatch({
+                    type: "STREAM_START",
+                    streamType: channelType === 2 ? "guild" : "call",
+                    guildId: channelType === 2 ? connectedChannel.guild_id : null,
+                    channelId: voiceState.channelId,
+                    appContext: "app",
+                    audioSourceId: null,
+                    pid: null,
+                    previewDisabled: false,
+                    sound: true,
+                    sourceId: source,
+                    sourceName: "Screen 1"
                 });
 
                 break;
