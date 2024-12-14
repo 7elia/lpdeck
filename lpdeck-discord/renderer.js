@@ -150,6 +150,9 @@ class ReconnectableWebSocket {
                     value: !this.StreamerModeStore.enabled
                 });
                 break;
+            case "restart":
+                (window.VesktopNative ? VesktopNative : DiscordNative).app.relaunch();
+                break;
         }
 
         this.sendAppData();
