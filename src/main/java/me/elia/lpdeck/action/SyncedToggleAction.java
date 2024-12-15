@@ -1,6 +1,7 @@
 package me.elia.lpdeck.action;
 
 import com.google.gson.JsonObject;
+import me.elia.lpdeck.action.base.ToggleAction;
 import me.elia.lpdeck.server.ServerListener;
 import me.elia.lpdeck.server.ServerTarget;
 

@@ -1,13 +1,16 @@
 package me.elia.lpdeck;
 
 import lombok.Getter;
-import me.elia.lpdeck.action.ActionRegistry;
+import me.elia.lpdeck.action.SpotifyPatchAction;
+import me.elia.lpdeck.action.base.ActionRegistry;
 import me.elia.lpdeck.action.CommandAction;
-import me.elia.lpdeck.action.ServerManager;
+import me.elia.lpdeck.action.ServerTargetManager;
 import me.elia.lpdeck.action.SyncedToggleAction;
-import me.elia.lpdeck.action.discord.PatchAction;
-import me.elia.lpdeck.action.other.WebSocketManager;
+import me.elia.lpdeck.action.DiscordPatchAction;
+import me.elia.lpdeck.action.WebSocketManager;
 import me.elia.lpdeck.action.voicemeeter.*;
+import me.elia.lpdeck.patch.DiscordPatcher;
+import me.elia.lpdeck.patch.SpotifyPatcher;
 import me.elia.lpdeck.server.LpdeckServer;
 import me.elia.lpdeck.server.ServerTarget;
 import me.elia.lpdeck.voicemeeter.VoicemeeterIntegration;
@@ -36,7 +39,7 @@ public class Lpdeck implements Closeable {
     public Lpdeck() {
         INSTANCE = this;
 
-        LOGGER.info("Starting client");
+        LOGGER.info("Starting client...");
 
         this.actionRegistry = new ActionRegistry();
         try {
@@ -53,6 +56,7 @@ public class Lpdeck implements Closeable {
         this.voicemeeter = new VoicemeeterIntegration();
         this.voicemeeter.start();
 
+        SpotifyPatcher.patch(false);
         DiscordPatcher.patch();
 
         this.registerActions();
@@ -65,12 +69,15 @@ public class Lpdeck implements Closeable {
     private void registerActions() {
         this.actionRegistry.addManager(new WebSocketManager(7));
 
-        this.actionRegistry.addManager(new ServerManager(0, ServerTarget.SPOTIFY));
+        this.actionRegistry.addManager(new ServerTargetManager(0, ServerTarget.SPOTIFY));
         this.actionRegistry.addAction(new SyncedToggleAction(0, 0, ServerTarget.SPOTIFY, "toggle_play", "playing"));
         this.actionRegistry.addAction(new SyncedToggleAction(0, 1, ServerTarget.SPOTIFY, "toggle_repeat", "repeat"));
         this.actionRegistry.addAction(new SyncedToggleAction(0, 2, ServerTarget.SPOTIFY, "toggle_shuffle", "shuffle"));
         this.actionRegistry.addAction(new CommandAction(0, 3, ServerTarget.SPOTIFY, "previous"));
         this.actionRegistry.addAction(new CommandAction(0, 4, ServerTarget.SPOTIFY, "next"));
+        this.actionRegistry.addAction(new CommandAction(0, 5, ServerTarget.SPOTIFY, "lower_volume"));
+        this.actionRegistry.addAction(new CommandAction(0, 6, ServerTarget.SPOTIFY, "increase_volume"));
+        this.actionRegistry.addAction(new SpotifyPatchAction(0, 7));
 
         this.actionRegistry.addManager(new VoicemeeterManager(1));
         this.actionRegistry.addAction(new ToggleMuteAction(1, 0));
@@ -79,13 +86,13 @@ public class Lpdeck implements Closeable {
         this.actionRegistry.addAction(new ToggleLoopbackAction(1, 3));
         this.actionRegistry.addAction(new ToggleSpeakersAction(1, 4));
 
-        this.actionRegistry.addManager(new ServerManager(2, ServerTarget.DISCORD));
+        this.actionRegistry.addManager(new ServerTargetManager(2, ServerTarget.DISCORD));
         this.actionRegistry.addAction(new SyncedToggleAction(2, 0, ServerTarget.DISCORD, "disconnect", "connected"));
         this.actionRegistry.addAction(new SyncedToggleAction(2, 1, ServerTarget.DISCORD, "toggle_deafen", "deafened"));
         this.actionRegistry.addAction(new SyncedToggleAction(2, 2, ServerTarget.DISCORD, "toggle_krisp", "krisp"));
         this.actionRegistry.addAction(new SyncedToggleAction(2, 3, ServerTarget.DISCORD, "toggle_screenshare", "screensharing"));
         this.actionRegistry.addAction(new SyncedToggleAction(2, 4, ServerTarget.DISCORD, "toggle_streamer_mode", "streamer_mode"));
-        this.actionRegistry.addAction(new PatchAction(2, 5));
+        this.actionRegistry.addAction(new DiscordPatchAction(2, 5));
     }
 
     public void start() {
@@ -94,12 +101,13 @@ public class Lpdeck implements Closeable {
         try {
             LATCH.await();
         } catch (InterruptedException e) {
-            LOGGER.warn("Interrupted while awaiting latch, program will shut down...");
+            LOGGER.warn("Interrupted while awaiting latch, shutting down program...");
         }
     }
 
+    @Override
     public void close() {
-        LOGGER.info("Closing client");
+        LOGGER.info("Closing client...");
 
         this.launchpadClient.reset();
         try {

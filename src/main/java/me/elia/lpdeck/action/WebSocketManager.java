@@ -1,6 +1,6 @@
-package me.elia.lpdeck.action.other;
+package me.elia.lpdeck.action;
 
-import me.elia.lpdeck.action.Manager;
+import me.elia.lpdeck.action.base.Manager;
 import net.thecodersbreakfast.lp4j.api.Color;
 
 public class WebSocketManager extends Manager {
@@ -10,7 +10,7 @@ public class WebSocketManager extends Manager {
     }
 
     @Override
-    public void press() {
+    public void onPressed() {
         this.client.getServer().restart();
     }
 }

@@ -1,4 +1,4 @@
-package me.elia.lpdeck;
+package me.elia.lpdeck.patch;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
@@ -23,7 +23,7 @@ public class DiscordPatcher {
             }
             renderer += REPLACEMENT_HEADER + FileUtils.readFileToString(PATCH_PATH.toFile(), StandardCharsets.UTF_8);
             FileUtils.writeStringToFile(RENDERER_PATH.toFile(), renderer, StandardCharsets.UTF_8, false);
-            LOGGER.info("Patched");
+            LOGGER.info("Successfully patched Discord.");
         } catch (IOException e) {
             LOGGER.error("Error while patching renderer file", e);
         }

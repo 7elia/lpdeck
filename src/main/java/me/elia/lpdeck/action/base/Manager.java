@@ -1,4 +1,4 @@
-package me.elia.lpdeck.action;
+package me.elia.lpdeck.action.base;
 
 import lombok.Getter;
 import me.elia.lpdeck.Lpdeck;
@@ -21,7 +21,7 @@ public abstract class Manager {
         this.client = Lpdeck.getInstance();
     }
 
-    public abstract void press();
+    public abstract void onPressed();
 
     public void setColor(Color color) {
         this.client.getLaunchpadClient().setButtonLight(this.button, color, BackBufferOperation.NONE);

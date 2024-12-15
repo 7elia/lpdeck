@@ -32,7 +32,7 @@ public class VoicemeeterIntegration {
             Voicemeeter.init(IS_64_BIT);
             Voicemeeter.login();
             this.connected = true;
-            LOGGER.info("Connected to Voicemeeter");
+            LOGGER.info("Connected to Voicemeeter.");
             for (VoicemeeterListener listener : this.listeners) {
                 listener.connected();
             }
@@ -42,12 +42,12 @@ public class VoicemeeterIntegration {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored1) {
-                LOGGER.warn("Couldn't successfully wait for Voicemeeter to start");
+                LOGGER.warn("Couldn't successfully wait for Voicemeeter to start.");
             }
             Voicemeeter.logout();
             Voicemeeter.login();
             this.connected = true;
-            LOGGER.info("Done waiting for Voicemeeter");
+            LOGGER.info("Done waiting for Voicemeeter.");
         }
         this.testConnection();
     }

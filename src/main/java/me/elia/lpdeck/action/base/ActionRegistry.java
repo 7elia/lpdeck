@@ -1,4 +1,4 @@
-package me.elia.lpdeck.action;
+package me.elia.lpdeck.action.base;
 
 import lombok.RequiredArgsConstructor;
 import net.thecodersbreakfast.lp4j.api.*;
@@ -41,7 +41,7 @@ public class ActionRegistry implements LaunchpadListener {
     public void onButtonPressed(Button button, long l) {
         for (Manager manager : this.managers) {
             if (button.isTopButton() && button.getCoordinate() == manager.getPos()) {
-                manager.press();
+                manager.onPressed();
             }
         }
     }

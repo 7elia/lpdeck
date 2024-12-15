@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="WARN">
     <Appenders>
-        <Console name="console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss}  %-5p (%c{1}) %m%n" />
+        <Console name="SysOut" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
         </Console>
+        <RandomAccessFile name="File" fileName="logs/latest.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
+        </RandomAccessFile>
     </Appenders>
-
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="console" />
+            <AppenderRef ref="SysOut" />
+            <AppenderRef ref="File" />
         </Root>
     </Loggers>
 </Configuration>

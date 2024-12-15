@@ -1,7 +1,7 @@
 package me.elia.lpdeck.action.voicemeeter;
 
 import me.elia.lpdeck.Lpdeck;
-import me.elia.lpdeck.action.ToggleAction;
+import me.elia.lpdeck.action.base.ToggleAction;
 import me.elia.lpdeck.voicemeeter.VoicemeeterListener;
 import me.mattco.voicemeeter.Voicemeeter;
 

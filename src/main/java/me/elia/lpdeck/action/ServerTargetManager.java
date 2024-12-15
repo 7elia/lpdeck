@@ -1,13 +1,14 @@
 package me.elia.lpdeck.action;
 
+import me.elia.lpdeck.action.base.Manager;
 import me.elia.lpdeck.server.ServerListener;
 import me.elia.lpdeck.server.ServerTarget;
 import net.thecodersbreakfast.lp4j.api.Color;
 
-public class ServerManager extends Manager implements ServerListener {
+public class ServerTargetManager extends Manager implements ServerListener {
     private final ServerTarget target;
 
-    public ServerManager(int pos, ServerTarget target) {
+    public ServerTargetManager(int pos, ServerTarget target) {
         super(pos);
         this.target = target;
         this.target.addListener(this);
@@ -15,7 +16,7 @@ public class ServerManager extends Manager implements ServerListener {
     }
 
     @Override
-    public void press() {
+    public void onPressed() {
         this.client.getServer().closeTarget(this.target);
     }
 

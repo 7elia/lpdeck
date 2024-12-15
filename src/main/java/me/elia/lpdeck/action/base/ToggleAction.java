@@ -1,4 +1,4 @@
-package me.elia.lpdeck.action;
+package me.elia.lpdeck.action.base;
 
 import net.thecodersbreakfast.lp4j.api.Color;
 

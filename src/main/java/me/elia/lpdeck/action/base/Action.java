@@ -1,4 +1,4 @@
-package me.elia.lpdeck.action;
+package me.elia.lpdeck.action.base;
 
 import lombok.Getter;
 import me.elia.lpdeck.Lpdeck;

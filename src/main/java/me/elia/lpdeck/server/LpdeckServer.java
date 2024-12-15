@@ -95,7 +95,7 @@ public class LpdeckServer {
 
         @Override
         public void onOpen(WebSocket client, ClientHandshake clientHandshake) {
-            LOGGER.info("New connection opened to Lpdeck WS");
+            LOGGER.info("New connection opened to Lpdeck WS.");
         }
 
         @Override
@@ -105,7 +105,7 @@ public class LpdeckServer {
                     listener.onClientDisconnected(this.getClientsFor(attachment).size());
                 }
             }
-            LOGGER.info("Connection closed from Lpdeck WS");
+            LOGGER.info("Connection closed from Lpdeck WS.");
         }
 
         @Override
@@ -141,13 +141,13 @@ public class LpdeckServer {
         @Override
         public void onStart() {
             this.started = true;
-            LOGGER.info("Started Lpdeck WS");
+            LOGGER.info("Started Lpdeck WS.");
         }
 
         @Override
         public void stop(int timeout, String closeMessage) throws InterruptedException {
             this.started = false;
-            LOGGER.info("Stopping Lpdeck WS");
+            LOGGER.info("Stopping Lpdeck WS.");
             super.stop(timeout, closeMessage);
         }
     }

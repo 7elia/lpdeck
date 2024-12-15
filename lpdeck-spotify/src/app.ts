@@ -75,6 +75,12 @@ class ReconnectableWebSocket {
             case "toggle_repeat":
                 Spicetify.Player.setRepeat(Spicetify.Player.getRepeat() === 2 ? 1 : 2);
                 break;
+            case "lower_volume":
+                Spicetify.Player.setVolume(Math.max(0, Spicetify.Player.getVolume() - 0.05));
+                break;
+            case "increase_volume":
+                Spicetify.Player.setVolume(Math.min(1, Spicetify.Player.getVolume() + 0.05));
+                break;
         }
 
         this.sendPlayerData();

@@ -1,6 +1,6 @@
 package me.elia.lpdeck.action.voicemeeter;
 
-import me.elia.lpdeck.action.ToggleAction;
+import me.elia.lpdeck.action.base.ToggleAction;
 import me.mattco.voicemeeter.Voicemeeter;
 
 public class ToggleMicAction extends ToggleAction {

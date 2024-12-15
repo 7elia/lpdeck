@@ -1,5 +1,6 @@
 package me.elia.lpdeck.action;
 
+import me.elia.lpdeck.action.base.Action;
 import me.elia.lpdeck.server.ServerTarget;
 
 public class CommandAction extends Action {
