@@ -6,8 +6,4 @@ public class Main {
         Lpdeck deck = new Lpdeck();
         deck.start();
     }
-
-    static {
-        System.setProperty("java.awt.headless", "true");
-    }
 }
