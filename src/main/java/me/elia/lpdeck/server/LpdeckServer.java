@@ -39,7 +39,7 @@ public class LpdeckServer {
     }
 
     public void closeTarget(ServerTarget target) {
-        LOGGER.info("Closing all clients for target {}", target);
+        LOGGER.info("Closing all clients for target {}.", target);
         for (WebSocket client : this.websocket.getClientsFor(target)) {
             client.close();
         }
@@ -128,7 +128,7 @@ public class LpdeckServer {
                     for (ServerListener listener : target.getListeners()) {
                         listener.onClientConnected();
                     }
-                    LOGGER.info("New connection registered for target {}", target);
+                    LOGGER.info("New connection registered for target {}.", target);
                     break;
             }
         }

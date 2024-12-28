@@ -27,11 +27,11 @@ public class ActionRegistry implements LaunchpadListener {
         for (Action action : this.actions) {
             if (action.getX() == pad.getX() && action.getY() == pad.getY()) {
                 action.press();
-                LOGGER.info("Activated pad action at ({}, {})", pad.getX(), pad.getY());
+                LOGGER.info("Activated pad action at ({}, {}).", pad.getX(), pad.getY());
                 return;
             }
         }
-        LOGGER.info("No action registered for pad ({}, {})", pad.getX(), pad.getY());
+        LOGGER.info("No action registered for pad ({}, {}).", pad.getX(), pad.getY());
     }
 
     @Override
