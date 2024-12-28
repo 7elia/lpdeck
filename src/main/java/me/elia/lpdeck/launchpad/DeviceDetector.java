@@ -1,4 +1,4 @@
-package me.elia.lpdeck;
+package me.elia.lpdeck.launchpad;
 
 import net.thecodersbreakfast.lp4j.midi.MidiDeviceConfiguration;
 
@@ -10,8 +10,8 @@ public class DeviceDetector {
     public static final String DEVICE_SIGNATURE = "Launchpad";
 
     public static MidiDeviceConfiguration detectDevices() throws MidiUnavailableException {
-        MidiDevice inputDevice = autodetectInputDevice();
-        MidiDevice outputDevice = autodetectOutputDevice();
+        MidiDevice inputDevice = detectInputDevice();
+        MidiDevice outputDevice = detectOutputDevice();
         return new MidiDeviceConfiguration(inputDevice, outputDevice);
     }
 
@@ -26,7 +26,7 @@ public class DeviceDetector {
         return devices;
     }
 
-    public static MidiDevice autodetectInputDevice() throws MidiUnavailableException {
+    private static MidiDevice detectInputDevice() throws MidiUnavailableException {
         for (MidiDevice device : getMidiDevices()) {
             if (device.getMaxTransmitters() == -1) {
                 device.close();
@@ -37,7 +37,7 @@ public class DeviceDetector {
         return null;
     }
 
-    public static MidiDevice autodetectOutputDevice() throws MidiUnavailableException {
+    private static MidiDevice detectOutputDevice() throws MidiUnavailableException {
         for (MidiDevice device : getMidiDevices()) {
             if (device.getMaxReceivers() == -1) {
                 device.close();

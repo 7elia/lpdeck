@@ -9,6 +9,9 @@ import me.elia.lpdeck.action.SyncedToggleAction;
 import me.elia.lpdeck.action.DiscordPatchAction;
 import me.elia.lpdeck.action.WebSocketManager;
 import me.elia.lpdeck.action.voicemeeter.*;
+import me.elia.lpdeck.launchpad.DeviceDetector;
+import me.elia.lpdeck.launchpad.ListenableMidiLaunchpad;
+import me.elia.lpdeck.launchpad.ListenableMidiLaunchpadClient;
 import me.elia.lpdeck.patch.DiscordPatcher;
 import me.elia.lpdeck.patch.SpotifyPatcher;
 import me.elia.lpdeck.server.LpdeckServer;
@@ -31,8 +34,8 @@ public class Lpdeck implements Closeable {
     private static final CountDownLatch LATCH = new CountDownLatch(1);
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck");
     private final Launchpad launchpad;
-    @Getter private final LaunchpadClient launchpadClient;
-    private final ActionRegistry actionRegistry;
+    @Getter private final ListenableMidiLaunchpadClient launchpadClient;
+    @Getter private final ActionRegistry actionRegistry;
     @Getter private final VoicemeeterIntegration voicemeeter;
     @Getter private final LpdeckServer server;
 
@@ -43,12 +46,12 @@ public class Lpdeck implements Closeable {
 
         this.actionRegistry = new ActionRegistry();
         try {
-            this.launchpad = new MidiLaunchpad(DeviceDetector.detectDevices());
+            this.launchpad = new ListenableMidiLaunchpad(DeviceDetector.detectDevices());
         } catch (MidiUnavailableException ignored) {
             throw new RuntimeException("Couldn't find input & output devices");
         }
         this.launchpad.setListener(this.actionRegistry);
-        this.launchpadClient = this.launchpad.getClient();
+        this.launchpadClient = (ListenableMidiLaunchpadClient) this.launchpad.getClient();
 
         this.server = new LpdeckServer();
         this.server.start();
@@ -58,15 +61,13 @@ public class Lpdeck implements Closeable {
 
         SpotifyPatcher.patch(false);
         DiscordPatcher.patch();
-
-        this.registerActions();
     }
 
     public static @NotNull Lpdeck getInstance() {
         return INSTANCE;
     }
 
-    private void registerActions() {
+    public void registerActions() {
         this.actionRegistry.addManager(new WebSocketManager(7));
 
         this.actionRegistry.addManager(new ServerTargetManager(0, ServerTarget.SPOTIFY));
@@ -98,11 +99,11 @@ public class Lpdeck implements Closeable {
     public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::close, "Shutdown Thread"));
 
-        try {
-            LATCH.await();
-        } catch (InterruptedException e) {
-            LOGGER.warn("Interrupted while awaiting latch, shutting down program...");
-        }
+//        try {
+//            LATCH.await();
+//        } catch (InterruptedException e) {
+//            LOGGER.warn("Interrupted while awaiting latch, shutting down program...");
+//        }
     }
 
     @Override
