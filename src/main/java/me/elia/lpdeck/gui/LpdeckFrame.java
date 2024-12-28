@@ -3,13 +3,10 @@ package me.elia.lpdeck.gui;
 import me.elia.lpdeck.Lpdeck;
 import me.elia.lpdeck.action.base.ActionRegistry;
 import me.elia.lpdeck.launchpad.LaunchpadLightListener;
-import net.thecodersbreakfast.lp4j.api.BackBufferOperation;
 import net.thecodersbreakfast.lp4j.api.Pad;
-import net.thecodersbreakfast.lp4j.api.ScrollSpeed;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.Position;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;

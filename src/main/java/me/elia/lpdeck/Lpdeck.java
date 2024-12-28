@@ -19,7 +19,6 @@ import me.elia.lpdeck.server.ServerTarget;
 import me.elia.lpdeck.voicemeeter.VoicemeeterIntegration;
 import me.mattco.voicemeeter.Voicemeeter;
 import net.thecodersbreakfast.lp4j.api.*;
-import net.thecodersbreakfast.lp4j.midi.MidiLaunchpad;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -27,11 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.sound.midi.MidiUnavailableException;
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 
 public class Lpdeck implements Closeable {
     private static Lpdeck INSTANCE;
-    private static final CountDownLatch LATCH = new CountDownLatch(1);
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck");
     private final Launchpad launchpad;
     @Getter private final ListenableMidiLaunchpadClient launchpadClient;
@@ -98,12 +95,6 @@ public class Lpdeck implements Closeable {
 
     public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread(this::close, "Shutdown Thread"));
-
-//        try {
-//            LATCH.await();
-//        } catch (InterruptedException e) {
-//            LOGGER.warn("Interrupted while awaiting latch, shutting down program...");
-//        }
     }
 
     @Override
