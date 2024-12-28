@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import me.elia.lpdeck.gui.LpdeckFrame;
 
 import javax.swing.*;
+import java.util.Arrays;
 
 public class Main {
     @SuppressWarnings("resource")
@@ -11,9 +12,11 @@ public class Main {
         Lpdeck deck = new Lpdeck();
         deck.start();
 
-        FlatDarculaLaf.setup();
-        JFrame frame = new LpdeckFrame();
-        frame.setVisible(true);
+        if (Arrays.stream(args).noneMatch(v -> v.equalsIgnoreCase("-nogui"))) {
+            FlatDarculaLaf.setup();
+            JFrame frame = new LpdeckFrame();
+            frame.setVisible(true);
+        }
 
         deck.registerActions();
     }
