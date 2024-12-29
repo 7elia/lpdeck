@@ -7,23 +7,28 @@ import net.thecodersbreakfast.lp4j.api.Button;
 import net.thecodersbreakfast.lp4j.api.Color;
 
 public abstract class Manager {
-    @Getter private final int pos;
-    private final Button button;
+    @Getter private final ActionCategory category;
+    @Getter private Button pos;
     public final Lpdeck client;
 
-    public Manager(int pos) {
-        this(pos, true);
-    }
-
-    public Manager(int pos, boolean top) {
-        this.pos = pos;
-        this.button = top ? Button.atTop(pos) : Button.atRight(pos);
+    public Manager(ActionCategory category) {
+        this.category = category;
         this.client = Lpdeck.getInstance();
     }
 
     public abstract void onPressed();
 
+    public void setPos(Button pos) {
+        this.setColor(Color.BLACK);
+        this.pos = pos;
+        this.setColor();
+    }
+
+    public void setColor() {
+        this.setColor(Color.GREEN);
+    }
+
     public void setColor(Color color) {
-        this.client.getLaunchpadClient().setButtonLight(this.button, color, BackBufferOperation.NONE);
+        this.client.getLaunchpadClient().setButtonLight(this.pos, color, BackBufferOperation.NONE);
     }
 }

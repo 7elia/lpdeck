@@ -1,11 +1,16 @@
 package me.elia.lpdeck.action.voicemeeter;
 
+import me.elia.lpdeck.action.base.ActionCategory;
 import me.elia.lpdeck.action.base.ToggleAction;
 import me.mattco.voicemeeter.Voicemeeter;
 
 public class ToggleSpeakersAction extends ToggleAction {
-    public ToggleSpeakersAction(int x, int y) {
-        super(x, y, isUsingSpeakers());
+    public ToggleSpeakersAction() {
+        super(
+                "toggle_speakers",
+                ActionCategory.VOICEMEETER,
+                isUsingSpeakers()
+        );
     }
 
     private static boolean isUsingSpeakers() {

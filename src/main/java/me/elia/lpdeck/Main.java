@@ -1,7 +1,7 @@
 package me.elia.lpdeck;
 
-import com.formdev.flatlaf.FlatDarculaLaf;
 import me.elia.lpdeck.gui.LpdeckFrame;
+import me.elia.lpdeck.gui.themes.LpdeckTheme;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -13,7 +13,7 @@ public class Main {
         deck.start();
 
         if (Arrays.stream(args).noneMatch(v -> v.equalsIgnoreCase("-nogui"))) {
-            FlatDarculaLaf.setup();
+            LpdeckTheme.setup();
             JFrame frame = new LpdeckFrame();
             frame.setVisible(true);
         }

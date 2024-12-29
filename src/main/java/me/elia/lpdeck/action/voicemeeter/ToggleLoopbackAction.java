@@ -1,13 +1,18 @@
 package me.elia.lpdeck.action.voicemeeter;
 
 import me.elia.lpdeck.Lpdeck;
+import me.elia.lpdeck.action.base.ActionCategory;
 import me.elia.lpdeck.action.base.ToggleAction;
 import me.elia.lpdeck.voicemeeter.VoicemeeterListener;
 import me.mattco.voicemeeter.Voicemeeter;
 
 public class ToggleLoopbackAction extends ToggleAction implements VoicemeeterListener {
-    public ToggleLoopbackAction(int x, int y) {
-        super(x, y, Voicemeeter.getParameterFloat(getStrip()) == 1.0F);
+    public ToggleLoopbackAction() {
+        super(
+                "toggle_loopback",
+                ActionCategory.VOICEMEETER,
+                Voicemeeter.getParameterFloat(getStrip()) == 1.0F
+        );
         this.client.getVoicemeeter().addListener(this);
     }
 

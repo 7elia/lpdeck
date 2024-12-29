@@ -1,5 +1,6 @@
 package me.elia.lpdeck.action;
 
+import me.elia.lpdeck.action.base.ActionCategory;
 import me.elia.lpdeck.action.base.Manager;
 import me.elia.lpdeck.server.ServerListener;
 import me.elia.lpdeck.server.ServerTarget;
@@ -8,10 +9,15 @@ import net.thecodersbreakfast.lp4j.api.Color;
 public class ServerTargetManager extends Manager implements ServerListener {
     private final ServerTarget target;
 
-    public ServerTargetManager(int pos, ServerTarget target) {
-        super(pos);
+    public ServerTargetManager(ActionCategory category, ServerTarget target) {
+        super(category);
         this.target = target;
         this.target.addListener(this);
+        this.setColor();
+    }
+
+    @Override
+    public void setColor() {
         this.setColor(this.client.getServer().hasClientsFor(this.target) ? Color.GREEN : Color.RED);
     }
 

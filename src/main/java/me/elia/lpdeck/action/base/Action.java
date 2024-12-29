@@ -8,19 +8,29 @@ import net.thecodersbreakfast.lp4j.api.Pad;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
+
 public abstract class Action {
     private static final Logger LOGGER = LogManager.getLogger("Action");
-    public final Lpdeck client = Lpdeck.getInstance();
-    @Getter private final int x;
-    @Getter private final int y;
+    @Getter private final String id;
+    @Getter private final ActionCategory category;
+    @Getter private Point pos;
+    public final Lpdeck client;
 
-    public Action(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Action(String id, ActionCategory category) {
+        this.id = id;
+        this.category = category;
+        this.client = Lpdeck.getInstance();
         this.setColor();
     }
 
     public abstract void press();
+
+    public void setPos(Point pos) {
+        this.setColor(Color.BLACK);
+        this.pos = pos;
+        this.setColor();
+    }
 
     public void setColor() {
         this.setColor(Color.ORANGE);
@@ -28,7 +38,7 @@ public abstract class Action {
 
     public void setColor(Color color) {
         try {
-            this.client.getLaunchpadClient().setPadLight(Pad.at(this.x, this.y), color, BackBufferOperation.NONE);
+            this.client.getLaunchpadClient().setPadLight(Pad.at(this.pos.x, this.pos.y), color, BackBufferOperation.NONE);
         } catch (IllegalStateException e) {
             LOGGER.error("Error while setting pad color", e);
         }

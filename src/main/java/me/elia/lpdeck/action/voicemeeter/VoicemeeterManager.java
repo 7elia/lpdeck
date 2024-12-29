@@ -1,12 +1,13 @@
 package me.elia.lpdeck.action.voicemeeter;
 
+import me.elia.lpdeck.action.base.ActionCategory;
 import me.elia.lpdeck.action.base.Manager;
 import me.elia.lpdeck.voicemeeter.VoicemeeterListener;
 import net.thecodersbreakfast.lp4j.api.Color;
 
 public class VoicemeeterManager extends Manager implements VoicemeeterListener {
-    public VoicemeeterManager(int pos) {
-        super(pos);
+    public VoicemeeterManager() {
+        super(ActionCategory.VOICEMEETER);
         this.client.getVoicemeeter().addListener(this);
     }
 

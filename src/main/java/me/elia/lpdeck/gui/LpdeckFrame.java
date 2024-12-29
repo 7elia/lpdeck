@@ -12,8 +12,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
+    private static final Color BACKGROUND = new Color(29, 29, 29);
     private final Map<Point, JPanel> pads;
 
     public LpdeckFrame() {
@@ -24,13 +26,23 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(600, 600);
         this.setResizable(true);
+        this.setBackground(BACKGROUND);
 
-        this.createGrid();
+        this.createLaunchpad();
 
         Lpdeck.getInstance().getLaunchpadClient().addLightListener(this);
     }
 
-    private void createGrid() {
+    private void createLaunchpad() {
+        JPanel launchpadPanel = new JPanel(new BorderLayout());
+
+        launchpadPanel.add(this.createGrid(), BorderLayout.CENTER);
+        launchpadPanel.add(this.createLogos(), BorderLayout.SOUTH);
+
+        this.add(launchpadPanel);
+    }
+
+    private JPanel createGrid() {
         JPanel gridPanel = new JPanel(new GridLayout(9, 9, 10, 10));
         gridPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -47,11 +59,21 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
                         Graphics2D g2d = (Graphics2D) g;
 
                         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                        g2d.setColor(this.getForeground());
+                        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
                         int size = Math.min(this.getWidth(), this.getHeight());
+
+                        RadialGradientPaint paint = new RadialGradientPaint(
+                                new Point(this.getWidth() / 2, this.getHeight() / 2),
+                                size / 2.0F,
+                                new float[] { 0.0F, 1.0F },
+                                new Color[] { this.getForeground(), this.getForeground().darker() }
+                        );
+
+                        g2d.setPaint(paint);
+
                         if (isEdge) {
-                            size = (int) (size * .85F);
+                            size = (int) (size * 0.85F);
                             g2d.fillOval((this.getWidth() - size) / 2, (this.getHeight() - size) / 2, size, size);
                         } else {
                             g2d.fillRect((this.getWidth() - size) / 2, (this.getHeight() - size) / 2, size, size);
@@ -64,9 +86,6 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
                 pad.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 pad.addMouseListener(new MouseListener() {
                     @Override
-                    public void mouseClicked(MouseEvent e) { }
-
-                    @Override
                     public void mousePressed(MouseEvent e) {
                         if (e.getButton() != MouseEvent.BUTTON1) {
                             return;
@@ -74,13 +93,16 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
                         ActionRegistry registry = Lpdeck.getInstance().getActionRegistry();
                         if (isEdge) {
                             registry.onButtonPressed(
-                                    finalX == 8 ? net.thecodersbreakfast.lp4j.api.Button.atRight(finalY + 1) : net.thecodersbreakfast.lp4j.api.Button.atTop(finalX),
+                                    finalX == 8 ? net.thecodersbreakfast.lp4j.api.Button.atRight(finalY - 1) : net.thecodersbreakfast.lp4j.api.Button.atTop(finalX),
                                     System.currentTimeMillis()
                             );
                         } else {
                             registry.onPadPressed(Pad.at(finalX, finalY - 1), System.currentTimeMillis());
                         }
                     }
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) { }
 
                     @Override
                     public void mouseReleased(MouseEvent e) { }
@@ -102,7 +124,38 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
             }
         }
 
-        this.add(gridPanel);
+        return gridPanel;
+    }
+
+    private JPanel createLogos() {
+        JPanel logoPanel = new JPanel();
+        logoPanel.setLayout(new BorderLayout());
+        logoPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+        logoPanel.setBackground(BACKGROUND);
+
+        JLabel novationLogo = new JLabel(this.scaleImage(new ImageIcon(Objects.requireNonNull(this.getClass().getClassLoader().getResource("logos/novation.png"))), 30)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                super.paintComponent(g);
+            }
+        };
+        logoPanel.add(novationLogo, BorderLayout.WEST);
+        logoPanel.add(new JLabel("LPDECK"), BorderLayout.EAST);
+
+        return logoPanel;
+    }
+
+    public ImageIcon scaleImage(ImageIcon icon, int height) {
+        int nw = icon.getIconWidth();
+        int nh = icon.getIconHeight();
+
+        if (nh > height) {
+            nh = height;
+            nw = (icon.getIconWidth() * nh) / icon.getIconHeight();
+        }
+
+        return new ImageIcon(icon.getImage().getScaledInstance(nw, nh, Image.SCALE_DEFAULT));
     }
 
     @Override

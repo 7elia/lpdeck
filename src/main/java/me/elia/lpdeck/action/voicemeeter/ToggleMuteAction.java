@@ -1,11 +1,16 @@
 package me.elia.lpdeck.action.voicemeeter;
 
+import me.elia.lpdeck.action.base.ActionCategory;
 import me.elia.lpdeck.action.base.ToggleAction;
 import me.mattco.voicemeeter.Voicemeeter;
 
 public class ToggleMuteAction extends ToggleAction {
-    public ToggleMuteAction(int x, int y) {
-        super(x, y, Voicemeeter.getParameterFloat("Bus[3].Mute") == 0.0F);
+    public ToggleMuteAction() {
+        super(
+                "toggle_mute",
+                ActionCategory.VOICEMEETER,
+                Voicemeeter.getParameterFloat("Bus[3].Mute") == 0.0F
+        );
     }
 
     @Override
