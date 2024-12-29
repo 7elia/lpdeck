@@ -8,11 +8,7 @@ import me.mattco.voicemeeter.Voicemeeter;
 
 public class ToggleLoopbackAction extends ToggleAction implements VoicemeeterListener {
     public ToggleLoopbackAction() {
-        super(
-                "toggle_loopback",
-                ActionCategory.VOICEMEETER,
-                Voicemeeter.getParameterFloat(getStrip()) == 1.0F
-        );
+        super("toggle_loopback", ActionCategory.VOICEMEETER);
         this.client.getVoicemeeter().addListener(this);
     }
 
@@ -26,12 +22,19 @@ public class ToggleLoopbackAction extends ToggleAction implements VoicemeeterLis
     }
 
     @Override
+    public void onConnected() {
+        Voicemeeter.areParametersDirty();
+        this.value = Voicemeeter.getParameterFloat(getStrip()) == 1.0F;
+        this.setColor();
+    }
+
+    @Override
     public void toggle() {
         Voicemeeter.setParameterFloat(getStrip(), this.value ? 0.0F : 1.0F);
     }
 
     @Override
-    public void micChanged(boolean main) {
+    public void onMicChanged(boolean main) {
         if (!this.value) {
             return;
         }

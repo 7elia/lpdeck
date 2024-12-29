@@ -9,7 +9,7 @@ import net.thecodersbreakfast.lp4j.api.Color;
 public abstract class Manager {
     @Getter private final ActionCategory category;
     @Getter private Button pos;
-    public final Lpdeck client;
+    protected final Lpdeck client;
 
     public Manager(ActionCategory category) {
         this.category = category;
@@ -29,6 +29,9 @@ public abstract class Manager {
     }
 
     public void setColor(Color color) {
+        if (this.pos == null) {
+            return;
+        }
         this.client.getLaunchpadClient().setButtonLight(this.pos, color, BackBufferOperation.NONE);
     }
 }

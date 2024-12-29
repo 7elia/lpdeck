@@ -20,9 +20,9 @@ public class VoicemeeterIntegration {
 
     public void addListener(VoicemeeterListener listener) {
         if (this.connected) {
-            listener.connected();
+            listener.onConnected();
         } else {
-            listener.disconnected();
+            listener.onDisconnected();
         }
         this.listeners.add(listener);
     }
@@ -34,7 +34,7 @@ public class VoicemeeterIntegration {
             this.connected = true;
             LOGGER.info("Connected to Voicemeeter.");
             for (VoicemeeterListener listener : this.listeners) {
-                listener.connected();
+                listener.onConnected();
             }
         } catch (VoicemeeterException ignored) {
             Voicemeeter.runVoicemeeter(2);
@@ -57,7 +57,7 @@ public class VoicemeeterIntegration {
             Voicemeeter.logout();
             this.connected = false;
             for (VoicemeeterListener listener : this.listeners) {
-                listener.disconnected();
+                listener.onDisconnected();
             }
         } catch (VoicemeeterException e) {
             LOGGER.error("Error while disconnecting from Voicemeeter", e);
@@ -75,7 +75,7 @@ public class VoicemeeterIntegration {
         }
         this.connected = false;
         for (VoicemeeterListener listener : this.listeners) {
-            listener.disconnected();
+            listener.onDisconnected();
         }
     }
 
@@ -90,7 +90,7 @@ public class VoicemeeterIntegration {
         Voicemeeter.setParameterFloat("Strip[1].B1", mainMic ? 1.0F : 0.0F);
         Voicemeeter.areParametersDirty();
         for (VoicemeeterListener listener : this.listeners) {
-            listener.micChanged(!mainMic);
+            listener.onMicChanged(!mainMic);
         }
     }
 }

@@ -17,14 +17,17 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.sound.midi.MidiUnavailableException;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class Lpdeck implements Closeable {
     private static Lpdeck INSTANCE;
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck");
+    @Getter private final Path roamingPath;
+    @Getter private final ActionRegistry actionRegistry;
     private final Launchpad launchpad;
     @Getter private final ListenableMidiLaunchpadClient launchpadClient;
-    @Getter private final ActionRegistry actionRegistry;
     @Getter private final VoicemeeterIntegration voicemeeter;
     @Getter private final LpdeckServer server;
 
@@ -32,6 +35,11 @@ public class Lpdeck implements Closeable {
         INSTANCE = this;
 
         LOGGER.info("Starting client...");
+
+        this.roamingPath = Path.of(System.getenv("AppData")).resolve("lpdeck");
+        if (!this.roamingPath.toFile().exists() && !this.roamingPath.toFile().mkdirs()) {
+            LOGGER.warn("Couldn't create AppData folder.");
+        }
 
         this.actionRegistry = new ActionRegistry();
         try {
@@ -43,55 +51,40 @@ public class Lpdeck implements Closeable {
         this.launchpadClient = (ListenableMidiLaunchpadClient) this.launchpad.getClient();
 
         this.server = new LpdeckServer();
-        this.server.start();
-
         this.voicemeeter = new VoicemeeterIntegration();
-        this.voicemeeter.start();
-
-        SpotifyPatcher.patch(false);
-        DiscordPatcher.patch();
     }
 
     public static @NotNull Lpdeck getInstance() {
         return INSTANCE;
     }
 
-    public void registerActions() {
-//        this.actionRegistry.addManager(new WebSocketManager(7));
-//
-//        this.actionRegistry.addManager(new ServerTargetManager(0, ServerTarget.SPOTIFY));
-//        this.actionRegistry.addAction(new SyncedToggleAction(0, 0, ServerTarget.SPOTIFY, "toggle_play", "playing"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(0, 1, ServerTarget.SPOTIFY, "toggle_repeat", "repeat"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(0, 2, ServerTarget.SPOTIFY, "toggle_shuffle", "shuffle"));
-//        this.actionRegistry.addAction(new CommandAction(0, 3, ServerTarget.SPOTIFY, "previous"));
-//        this.actionRegistry.addAction(new CommandAction(0, 4, ServerTarget.SPOTIFY, "next"));
-//        this.actionRegistry.addAction(new CommandAction(0, 5, ServerTarget.SPOTIFY, "lower_volume"));
-//        this.actionRegistry.addAction(new CommandAction(0, 6, ServerTarget.SPOTIFY, "increase_volume"));
-//        this.actionRegistry.addAction(new SpotifyPatchAction(0, 7));
-//
-//        this.actionRegistry.addManager(new VoicemeeterManager(1));
-//        this.actionRegistry.addAction(new ToggleMuteAction(1, 0));
-//        this.actionRegistry.addAction(new SwapMicAction(1, 1));
-//        this.actionRegistry.addAction(new ToggleAuxStreamAction(1, 2));
-//        this.actionRegistry.addAction(new ToggleLoopbackAction(1, 3));
-//        this.actionRegistry.addAction(new ToggleSpeakersAction(1, 4));
-//
-//        this.actionRegistry.addManager(new ServerTargetManager(2, ServerTarget.DISCORD));
-//        this.actionRegistry.addAction(new SyncedToggleAction(2, 0, ServerTarget.DISCORD, "disconnect", "connected"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(2, 1, ServerTarget.DISCORD, "toggle_deafen", "deafened"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(2, 2, ServerTarget.DISCORD, "toggle_krisp", "krisp"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(2, 3, ServerTarget.DISCORD, "toggle_screenshare", "screensharing"));
-//        this.actionRegistry.addAction(new SyncedToggleAction(2, 4, ServerTarget.DISCORD, "toggle_streamer_mode", "streamer_mode"));
-//        this.actionRegistry.addAction(new DiscordPatchAction(2, 5));
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public File getRoamingFile(String name) throws IOException {
+        File file = this.roamingPath.resolve(name).toFile();
+        if (!file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
+        return file;
     }
 
     public void start() {
+        this.server.start();
+        this.voicemeeter.start();
+
+        SpotifyPatcher.patch(false);
+        DiscordPatcher.patch();
+
+        this.actionRegistry.register();
+
         Runtime.getRuntime().addShutdownHook(new Thread(this::close, "Shutdown Thread"));
     }
 
     @Override
     public void close() {
         LOGGER.info("Closing client...");
+
+        this.getActionRegistry().save();
 
         this.launchpadClient.reset();
         try {

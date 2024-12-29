@@ -41,3 +41,21 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+tasks.register("copySpotifyPlugin", Copy) {
+    from "${projectDir}/lpdeck-spotify/dist/lpdeck.js"
+    into "${projectDir}/src/main/resources/patches"
+    rename { "spotify.js" }
+}
+
+tasks.register("copyDiscordPatch", Copy) {
+    from "${projectDir}/lpdeck-discord/renderer.js"
+    into "${projectDir}/src/main/resources/patches"
+    rename { "discord.js" }
+}
+
+tasks.register("copyPatches") {
+    dependsOn copySpotifyPlugin, copyDiscordPatch
+}
+
+processResources.dependsOn copyPatches

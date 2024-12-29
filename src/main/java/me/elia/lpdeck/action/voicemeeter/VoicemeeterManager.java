@@ -17,12 +17,12 @@ public class VoicemeeterManager extends Manager implements VoicemeeterListener {
     }
 
     @Override
-    public void connected() {
+    public void onConnected() {
         this.setColor(Color.GREEN);
     }
 
     @Override
-    public void disconnected() {
+    public void onDisconnected() {
         this.setColor(Color.RED);
     }
 }

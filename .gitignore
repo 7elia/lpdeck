@@ -40,3 +40,4 @@ bin/
 
 logs/
 imgui.ini
+**/patches/*.js

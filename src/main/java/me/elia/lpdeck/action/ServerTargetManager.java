@@ -8,10 +8,12 @@ import net.thecodersbreakfast.lp4j.api.Color;
 
 public class ServerTargetManager extends Manager implements ServerListener {
     private final ServerTarget target;
+    private final ServerTargetManagerCallback callback;
 
-    public ServerTargetManager(ActionCategory category, ServerTarget target) {
+    public ServerTargetManager(ActionCategory category, ServerTarget target, ServerTargetManagerCallback callback) {
         super(category);
         this.target = target;
+        this.callback = callback;
         this.target.addListener(this);
         this.setColor();
     }
@@ -24,6 +26,7 @@ public class ServerTargetManager extends Manager implements ServerListener {
     @Override
     public void onPressed() {
         this.client.getServer().closeTarget(this.target);
+        this.callback.callback();
     }
 
     @Override
@@ -36,5 +39,9 @@ public class ServerTargetManager extends Manager implements ServerListener {
         if (connections <= 0) {
             this.setColor(Color.RED);
         }
+    }
+
+    public interface ServerTargetManagerCallback {
+        void callback();
     }
 }

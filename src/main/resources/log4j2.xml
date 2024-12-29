@@ -7,11 +7,15 @@
         <RandomAccessFile name="File" fileName="logs/latest.log">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
         </RandomAccessFile>
+        <ConsoleAppender name="Gui">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
+        </ConsoleAppender>
     </Appenders>
     <Loggers>
         <Root level="INFO">
             <AppenderRef ref="SysOut" />
             <AppenderRef ref="File" />
+            <AppenderRef ref="Gui" />
         </Root>
     </Loggers>
 </Configuration>

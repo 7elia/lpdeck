@@ -1,55 +1,181 @@
 package me.elia.lpdeck.action.base;
 
+import com.google.gson.*;
 import lombok.RequiredArgsConstructor;
+import me.elia.lpdeck.Lpdeck;
 import me.elia.lpdeck.action.*;
 import me.elia.lpdeck.action.voicemeeter.*;
+import me.elia.lpdeck.patch.DiscordPatcher;
+import me.elia.lpdeck.patch.SpotifyPatcher;
 import me.elia.lpdeck.server.ServerTarget;
 import net.thecodersbreakfast.lp4j.api.*;
 import net.thecodersbreakfast.lp4j.api.Button;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @SuppressWarnings("unused")
 public class ActionRegistry implements LaunchpadListener {
     private static final Logger LOGGER = LogManager.getLogger("Action Registry");
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final List<Action> ACTIONS = new ArrayList<>();
-    public static final Action TOGGLE_PLAY = register(new SyncedToggleAction("toggle_play", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "playing"));
-    public static final Action TOGGLE_REPEAT = register(new SyncedToggleAction("toggle_repeat", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "repeat"));
-    public static final Action TOGGLE_SHUFFLE = register(new SyncedToggleAction("toggle_shuffle", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "shuffle"));
-    public static final Action PREVIOUS = register(new CommandAction("previous", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
-    public static final Action NEXT = register(new CommandAction("next", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
-    public static final Action LOWER_VOLUME = register(new CommandAction("lower_volume", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
-    public static final Action INCREASE_VOLUME = register(new CommandAction("increase_volume", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
-    public static final Action PATCH_SPOTIFY = register(new SpotifyPatchAction());
-    public static final Action TOGGLE_MUTE = register(new ToggleMuteAction());
-    public static final Action SWAP_MIC = register(new SwapMicAction());
-    public static final Action TOGGLE_AUX_STREAM = register(new ToggleAuxStreamAction());
-    public static final Action TOGGLE_LOOPBACK = register(new ToggleLoopbackAction());
-    public static final Action TOGGLE_SPEAKERS = register(new ToggleSpeakersAction());
-    public static final Action DISCONNECT = register(new SyncedToggleAction("disconnect", ActionCategory.DISCORD, ServerTarget.DISCORD, "connected"));
-    public static final Action TOGGLE_DEAFEN = register(new SyncedToggleAction("toggle_deafen", ActionCategory.DISCORD, ServerTarget.DISCORD, "deafened"));
-    public static final Action TOGGLE_KRISP = register(new SyncedToggleAction("toggle_krisp", ActionCategory.DISCORD, ServerTarget.DISCORD, "krisp"));
-    public static final Action TOGGLE_SCREENSHARE = register(new SyncedToggleAction("toggle_screenshare", ActionCategory.DISCORD, ServerTarget.DISCORD, "screensharing"));
-    public static final Action TOGGLE_STREAMER_MODE = register(new SyncedToggleAction("toggle_streamer_mode", ActionCategory.DISCORD, ServerTarget.DISCORD, "streamer_mode"));
-    public static final Action PATCH_DISCORD = register(new DiscordPatchAction());
     public static final List<Manager> MANAGERS = new ArrayList<>();
-    public static final Manager SPOTIFY_MANAGER = registerManager(new ServerTargetManager(ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
-    public static final Manager VOICEMEETER_MANAGER = registerManager(new VoicemeeterManager());
-    public static final Manager DISCORD_MANAGER = registerManager(new ServerTargetManager(ActionCategory.DISCORD, ServerTarget.DISCORD));
-    public static final Manager WEBSOCKET_MANAGER = registerManager(new WebSocketManager());
 
-    private static Action register(Action action) {
-        ACTIONS.add(action);
-        return action;
+    public void register() {
+        this.add(new SyncedToggleAction("toggle_play", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "playing"));
+        this.add(new SyncedToggleAction("toggle_repeat", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "repeat"));
+        this.add(new SyncedToggleAction("toggle_shuffle", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, "shuffle"));
+        this.add(new CommandAction("previous", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
+        this.add(new CommandAction("next", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
+        this.add(new CommandAction("lower_volume", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
+        this.add(new CommandAction("increase_volume", ActionCategory.SPOTIFY, ServerTarget.SPOTIFY));
+        this.add(new SpotifyPatchAction());
+        this.add(new ToggleMuteAction());
+        this.add(new SwapMicAction());
+        this.add(new ToggleAuxStreamAction());
+        this.add(new ToggleLoopbackAction());
+        this.add(new ToggleSpeakersAction());
+        this.add(new SyncedToggleAction("disconnect", ActionCategory.DISCORD, ServerTarget.DISCORD, "connected"));
+        this.add(new SyncedToggleAction("toggle_deafen", ActionCategory.DISCORD, ServerTarget.DISCORD, "deafened"));
+        this.add(new SyncedToggleAction("toggle_krisp", ActionCategory.DISCORD, ServerTarget.DISCORD, "krisp"));
+        this.add(new SyncedToggleAction("toggle_screenshare", ActionCategory.DISCORD, ServerTarget.DISCORD, "screensharing"));
+        this.add(new SyncedToggleAction("toggle_streamer_mode", ActionCategory.DISCORD, ServerTarget.DISCORD, "streamer_mode"));
+        this.add(new DiscordPatchAction());
+
+        this.add(new ServerTargetManager(ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, () -> SpotifyPatcher.patch(true)));
+        this.add(new VoicemeeterManager());
+        this.add(new ServerTargetManager(ActionCategory.DISCORD, ServerTarget.DISCORD, DiscordPatcher::patch));
+        this.add(new WebSocketManager());
     }
 
-    private static Manager registerManager(Manager manager) {
-        MANAGERS.add(manager);
-        return manager;
+    private void add(Object obj) {
+        if (obj instanceof Action action) {
+            ACTIONS.add(action);
+        } else if (obj instanceof Manager manager) {
+            MANAGERS.add(manager);
+        }
+    }
+
+    private Action findAction(String key) {
+        for (Action action : ACTIONS) {
+            if (action.getKey().equalsIgnoreCase(key)) {
+                return action;
+            }
+        }
+        return null;
+    }
+
+    private Manager findManager(String key) {
+        for (Manager manager : MANAGERS) {
+            if (manager.getCategory().name().equalsIgnoreCase(key)) {
+                return manager;
+            }
+        }
+        return null;
+    }
+
+    private JsonObject readRoamingObject(String fileName) throws IOException {
+        File file = Lpdeck.getInstance().getRoamingFile(fileName);
+        if (!file.exists()) {
+            return new JsonObject();
+        }
+        String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+        if (content.isEmpty()) {
+            return new JsonObject();
+        }
+        JsonElement element = JsonParser.parseString(content);
+        if (!element.isJsonObject()) {
+            return new JsonObject();
+        }
+        return element.getAsJsonObject();
+    }
+
+    private void loadActions() throws IOException {
+        JsonObject object = this.readRoamingObject("actions.json");
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            Action action = this.findAction(entry.getKey());
+            if (action == null) {
+                LOGGER.warn("Action of key '{}' not found, skipping.", entry.getKey());
+                continue;
+            }
+            JsonObject actionConfig = entry.getValue().getAsJsonObject();
+            action.setPos(new Point(actionConfig.get("x").getAsInt(), actionConfig.get("y").getAsInt()));
+            LOGGER.info("Loaded action '{}' from config.", action.getKey());
+        }
+    }
+
+    private void loadManagers() throws IOException {
+        JsonObject object = this.readRoamingObject("managers.json");
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            Manager manager = this.findManager(entry.getKey());
+            if (manager == null) {
+                LOGGER.warn("Manager of key '{}' not found, skipping.", entry.getKey());
+                continue;
+            }
+            JsonObject managerConfig = entry.getValue().getAsJsonObject();
+            int pos = managerConfig.get("pos").getAsInt();
+            manager.setPos(managerConfig.get("top").getAsBoolean() ? Button.atTop(pos) : Button.atRight(pos));
+            LOGGER.info("Loaded manager for category '{}' from config.", manager.getCategory().name());
+        }
+    }
+
+    public void load() {
+        try {
+            this.loadActions();
+            this.loadManagers();
+        } catch (IOException e) {
+            LOGGER.error("Error while loading config", e);
+        }
+    }
+
+    private void saveActions() throws IOException {
+        File actionsFile = Lpdeck.getInstance().getRoamingFile("actions.json");
+        JsonObject object = new JsonObject();
+        for (Action action : ACTIONS) {
+            if (action.getPos() == null) {
+                continue;
+            }
+            JsonObject actionConfig = new JsonObject();
+            actionConfig.addProperty("x", action.getPos().getX());
+            actionConfig.addProperty("y", action.getPos().getY());
+            object.add(action.getKey(), actionConfig);
+        }
+        FileUtils.writeStringToFile(actionsFile, GSON.toJson(object), StandardCharsets.UTF_8);
+        LOGGER.info("Saved actions config.");
+    }
+
+    private void saveManagers() throws IOException {
+        File managersFile = Lpdeck.getInstance().getRoamingFile("managers.json");
+        JsonObject object = new JsonObject();
+        for (Manager manager : MANAGERS) {
+            if (manager.getPos() == null) {
+                continue;
+            }
+            JsonObject managerConfig = new JsonObject();
+            managerConfig.addProperty("top", manager.getPos().isTopButton());
+            managerConfig.addProperty("pos", manager.getPos().getCoordinate());
+            object.add(manager.getCategory().name().toLowerCase(), managerConfig);
+        }
+        FileUtils.writeStringToFile(managersFile, GSON.toJson(object), StandardCharsets.UTF_8);
+        LOGGER.info("Saved managers config.");
+    }
+
+    public void save() {
+        try {
+            this.saveActions();
+            this.saveManagers();
+        } catch (IOException e) {
+            LOGGER.error("Error while saving config", e);
+        }
     }
 
     @Override
