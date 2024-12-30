@@ -18,37 +18,34 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 - Clone the repository.
 - Run `./gradlew build`.
 - Install [Spicetify](https://spicetify.app/docs/advanced-usage/installation).
-- Install [Vencord](https://vencord.dev/download/)
+- Install [Vencord](https://vencord.dev/download/).
 - Install the `lpdeck.js` Spicetify extension (found at `lpdeck-spotify/dist`, guide on how to install extensions locally is in the credits section).
 - Make sure your launchpad is plugged into the PC itself. If you're using a USB hub, make sure it is on low power mode, or it won't work consistently (manual can be found in the credits section).
 - Run the .jar file in `build/libs`.
 
-### Buttons (Top)
+### Actions
 
-- **0**: Disconnect all Spotify websockets.
-- **1**: Restart the Voicemeeter connection.
-- **2**: Disconnect all Discord websockets.
-
-### Pads
-
-- **(0, 0)**: Toggle pause in Spotify.
-- **(0, 1)**: Toggle repeat song in Spotify.
-- **(0, 2)**: Toggle shuffle in Spotify.
-- **(0, 3)**: Skip to previous song in Spotify.
-- **(0, 4)**: Skip to next song in Spotify.
+**Spotify:**
+- Toggle pause.
+- Toggle repeat song.
+- Toggle shuffle.
+- Skip to previous song.
+- Skip to next song.
 ---
-- **(1, 0)**: Toggle mute for Bus 4 in Voicemeeter.
-- **(1, 1)**: Switch between input 1 and 2 for B1 in Voicemeeter.
-- **(1, 2)**: Toggle B1 for AUX input in Voicemeeter.
-- **(1, 3)**: Toggle A1 for strip 1 or 2 depending on whichever one you're using.
-- **(1, 4)**: Toggle A2 for both virtual inputs.
+**Voicemeeter:**
+- Toggle mute for Bus 4.
+- Switch between input 1 and 2 for B1.
+- Toggle B1 for AUX input.
+- Toggle A1 for strip 1 or 2 depending on whichever one you're using.
+- Toggle A2 for both virtual inputs.
 ---
-- **(2, 0)**: Disconnect from the current voice channel.
-- **(2, 1)**: Toggle self-deafen.
-- **(2, 2)**: Toggle Krisp noise supression.
-- **(2, 3)**: Toggle screenshare (whole screen, with audio).
-- **(2, 4)**: Toggle streamer mode.
-- **(2, 5)**: Re-apply the Vencord patch and restart Discord.
+**Discord:**
+- Disconnect from the current voice channel.
+- Toggle self-deafen.
+- Toggle Krisp noise supression.
+- Toggle screenshare (whole screen, with audio).
+- Toggle streamer mode.
+- Re-apply the Vencord patch and restart Discord (if connected).
 
 ### Credits
 
@@ -63,4 +60,3 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
   This guide is for the MK2 model, but I'm pretty sure this guide still somewhat applies to the MK1 model.
   I didn't actually end up activating the bootloader.
 - https://github.com/Om-Thorat/Spicetify-extension for giving me a starting point for the Spicetify extension.
-- https://spicetify.app/docs/advanced-usage/extensions guide on installing Spicetify extensions (locally).

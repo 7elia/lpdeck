@@ -1,6 +1,8 @@
 package me.elia.lpdeck;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import jiconfont.icons.font_awesome.FontAwesome;
+import jiconfont.swing.IconFontSwing;
 import me.elia.lpdeck.gui.LpdeckFrame;
 
 import javax.swing.*;
@@ -14,14 +16,11 @@ public class Main {
 
         if (Arrays.stream(args).noneMatch(v -> v.equalsIgnoreCase("-nogui"))) {
             FlatDarculaLaf.setup();
+            IconFontSwing.register(FontAwesome.getIconFont());
             JFrame frame = new LpdeckFrame();
             frame.setVisible(true);
         }
 
         deck.getActionRegistry().load();
-    }
-
-    static {
-        System.setProperty("java.awt.headless", "false");
     }
 }

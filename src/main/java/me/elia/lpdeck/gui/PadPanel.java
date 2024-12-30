@@ -1,5 +1,6 @@
 package me.elia.lpdeck.gui;
 
+import lombok.Getter;
 import me.elia.lpdeck.Lpdeck;
 import me.elia.lpdeck.action.base.ActionRegistry;
 import me.elia.lpdeck.gui.listener.SimpleMouseListener;
@@ -13,7 +14,7 @@ import java.awt.event.MouseEvent;
 public class PadPanel extends JPanel implements LaunchpadLightListener {
     private final int x;
     private final int y;
-    private final boolean edge;
+    @Getter private final boolean edge;
 
     public PadPanel(int x, int y) {
         super();
@@ -25,6 +26,14 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
         Lpdeck.getInstance().getLaunchpadClient().addLightListener(this);
     }
 
+    public int getPadX() {
+        return this.x;
+    }
+
+    public int getPadY() {
+        return this.y;
+    }
+
     public void init() {
         this.setForeground(Color.GRAY);
         this.setFocusable(true);
@@ -32,7 +41,8 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
         this.addMouseListener(new SimpleMouseListener() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
+                PadPanel.this.requestFocusInWindow();
+                if (SwingUtilities.isLeftMouseButton(e)) {
                     ActionRegistry registry = Lpdeck.getInstance().getActionRegistry();
                     if (PadPanel.this.edge) {
                         registry.onButtonPressed(
@@ -44,7 +54,7 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
                     } else {
                         registry.onPadPressed(Pad.at(PadPanel.this.x, PadPanel.this.y - 1), System.currentTimeMillis());
                     }
-                } else if (e.getButton() == MouseEvent.BUTTON2) {
+                } else if (SwingUtilities.isRightMouseButton(e)) {
                     new PadContextMenu(PadPanel.this).show(PadPanel.this, e.getX(), e.getY());
                 }
             }

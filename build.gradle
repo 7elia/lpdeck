@@ -30,6 +30,8 @@ dependencies {
     implementation "org.jetbrains:annotations:26.0.1"
 
     implementation "com.formdev:flatlaf:3.5.4"
+    implementation "com.github.jiconfont:jiconfont-swing:1.0.0"
+    implementation "com.github.jiconfont:jiconfont-font_awesome:4.7.0.1"
 }
 
 jar {
