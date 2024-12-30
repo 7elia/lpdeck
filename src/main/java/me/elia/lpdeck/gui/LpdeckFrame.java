@@ -1,13 +1,21 @@
 package me.elia.lpdeck.gui;
 
-import me.elia.lpdeck.launchpad.LaunchpadLightListener;
+import com.formdev.flatlaf.ui.FlatBorder;
+import me.elia.lpdeck.gui.appenders.GuiAppender;
+import me.elia.lpdeck.gui.listener.SimpleDocumentListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.util.Objects;
 
-public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
+public class LpdeckFrame extends JFrame {
     private static final Color BACKGROUND = new Color(29, 29, 29);
 
     public LpdeckFrame() {
@@ -18,13 +26,10 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
         this.setResizable(true);
         this.setBackground(BACKGROUND);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());
 
-        panel.add(this.createLaunchpad(), BorderLayout.CENTER);
-        panel.add(this.createConsole(), BorderLayout.EAST);
-
-        this.add(panel);
+        this.add(this.createLaunchpad(), BorderLayout.CENTER);
+        this.add(this.createConsole(), BorderLayout.EAST);
     }
 
     private JPanel createLaunchpad() {
@@ -38,14 +43,23 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
 
     private JScrollPane createConsole() {
         JTextArea textArea = new JTextArea();
-        textArea.setPreferredSize(new Dimension((int) (this.getWidth() * 0.4F), this.getHeight()));
+        textArea.setColumns((int) (this.getWidth() * 0.4) / textArea.getFontMetrics(textArea.getFont()).charWidth('M'));
         textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
+        textArea.setFocusable(false);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        ((DefaultCaret) textArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        textArea.getDocument().addDocumentListener(new SimpleDocumentListener() {
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                textArea.setCaretPosition(textArea.getDocument().getLength());
+            }
+        });
 
-//        ConsoleAppender appender = (ConsoleAppender) ((org.apache.logging.log4j.core.Logger) LogManager.getRootLogger()).getAppenders().get("Gui");
-//        appender.setConsole(textArea);
+        GuiAppender appender = (GuiAppender) ((Logger) LogManager.getRootLogger()).getAppenders().get("Gui");
+        appender.setConsoleArea(textArea);
 
-        return scrollPane;
+        return new JScrollPane(textArea);
     }
 
     private JPanel createGrid() {
@@ -54,8 +68,10 @@ public class LpdeckFrame extends JFrame implements LaunchpadLightListener {
 
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
-                JPanel pad = new PadPanel(x, y);
+                PadPanel pad = new PadPanel(x, y);
+                pad.init();
                 gridPanel.add(pad);
+                gridPanel.revalidate();
             }
         }
 

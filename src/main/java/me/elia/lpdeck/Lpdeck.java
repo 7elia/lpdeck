@@ -84,8 +84,6 @@ public class Lpdeck implements Closeable {
     public void close() {
         LOGGER.info("Closing client...");
 
-        this.getActionRegistry().save();
-
         this.launchpadClient.reset();
         try {
             this.launchpad.close();

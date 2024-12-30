@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="me.elia.lpdeck.gui.appenders">
     <Appenders>
         <Console name="SysOut" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
@@ -7,9 +7,7 @@
         <RandomAccessFile name="File" fileName="logs/latest.log">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
         </RandomAccessFile>
-        <ConsoleAppender name="Gui">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
-        </ConsoleAppender>
+        <GuiAppender name="Gui" />
     </Appenders>
     <Loggers>
         <Root level="INFO">

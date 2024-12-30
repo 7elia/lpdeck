@@ -2,13 +2,13 @@ package me.elia.lpdeck.gui;
 
 import me.elia.lpdeck.Lpdeck;
 import me.elia.lpdeck.action.base.ActionRegistry;
+import me.elia.lpdeck.gui.listener.SimpleMouseListener;
 import me.elia.lpdeck.launchpad.LaunchpadLightListener;
 import net.thecodersbreakfast.lp4j.api.Pad;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 public class PadPanel extends JPanel implements LaunchpadLightListener {
     private final int x;
@@ -16,50 +16,43 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
     private final boolean edge;
 
     public PadPanel(int x, int y) {
+        super();
+
         this.x = x;
         this.y = y;
-        this.edge = x == 8 || y == 0;
+        this.edge = this.x == 8 || this.y == 0;
+
+        Lpdeck.getInstance().getLaunchpadClient().addLightListener(this);
+    }
+
+    public void init() {
+        this.setForeground(Color.GRAY);
+        this.setFocusable(true);
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        this.addMouseListener(new SimpleMouseListener() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    ActionRegistry registry = Lpdeck.getInstance().getActionRegistry();
+                    if (PadPanel.this.edge) {
+                        registry.onButtonPressed(
+                                PadPanel.this.x == 8
+                                ? net.thecodersbreakfast.lp4j.api.Button.atRight(PadPanel.this.y - 1)
+                                : net.thecodersbreakfast.lp4j.api.Button.atTop(PadPanel.this.x),
+                                System.currentTimeMillis()
+                        );
+                    } else {
+                        registry.onPadPressed(Pad.at(PadPanel.this.x, PadPanel.this.y - 1), System.currentTimeMillis());
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON2) {
+                    new PadContextMenu(PadPanel.this).show(PadPanel.this, e.getX(), e.getY());
+                }
+            }
+        });
 
         if (this.x == 8 && this.y == 0) {
             this.setVisible(false);
         }
-
-        this.setForeground(Color.GRAY);
-        this.setFocusable(true);
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        this.addMouseListener(new MouseListener() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (e.getButton() != MouseEvent.BUTTON1) {
-                    return;
-                }
-                ActionRegistry registry = Lpdeck.getInstance().getActionRegistry();
-                if (PadPanel.this.edge) {
-                    registry.onButtonPressed(
-                            PadPanel.this.x == 8
-                                    ? net.thecodersbreakfast.lp4j.api.Button.atRight(PadPanel.this.y - 1)
-                                    : net.thecodersbreakfast.lp4j.api.Button.atTop(PadPanel.this.x),
-                            System.currentTimeMillis()
-                    );
-                } else {
-                    registry.onPadPressed(Pad.at(PadPanel.this.x, PadPanel.this.y - 1), System.currentTimeMillis());
-                }
-            }
-
-            @Override
-            public void mouseClicked(MouseEvent e) { }
-
-            @Override
-            public void mouseReleased(MouseEvent e) { }
-
-            @Override
-            public void mouseEntered(MouseEvent e) { }
-
-            @Override
-            public void mouseExited(MouseEvent e) { }
-        });
-
-        Lpdeck.getInstance().getLaunchpadClient().addLightListener(this);
     }
 
     @Override

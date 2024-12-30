@@ -20,4 +20,8 @@ public class Main {
 
         deck.getActionRegistry().load();
     }
+
+    static {
+        System.setProperty("java.awt.headless", "false");
+    }
 }

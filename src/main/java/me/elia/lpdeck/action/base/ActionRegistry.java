@@ -181,9 +181,9 @@ public class ActionRegistry implements LaunchpadListener {
     @Override
     public void onPadPressed(Pad pad, long l) {
         for (Action action : ACTIONS) {
-            if (action.getPos() != null && action.getPos().x == pad.getX() && action.getPos().x == pad.getY()) {
+            if (action.getPos() != null && action.getPos().x == pad.getX() && action.getPos().y == pad.getY()) {
                 action.press();
-                LOGGER.info("Activated pad action at ({}, {}).", pad.getX(), pad.getY());
+                LOGGER.info("Activated pad action '{}' at ({}, {}).", action.getKey(), pad.getX(), pad.getY());
                 return;
             }
         }
@@ -198,8 +198,11 @@ public class ActionRegistry implements LaunchpadListener {
         for (Manager manager : MANAGERS) {
             if (manager.getPos().equals(button)) {
                 manager.onPressed();
+                LOGGER.info("Activated manager '{}' at {} ({}).", manager.getCategory().name(), button.getCoordinate(), button.isTopButton() ? "top" : "right");
+                return;
             }
         }
+        LOGGER.info("No manager registered at {} ({}).", button.getCoordinate(), button.isTopButton() ? "top" : "right");
     }
 
     @Override
