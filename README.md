@@ -44,7 +44,6 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 - Toggle Krisp noise supression.
 - Toggle screenshare (whole screen, with audio).
 - Toggle streamer mode.
-- Re-apply the Vencord patch and restart Discord (if connected).
 
 ### Credits
 

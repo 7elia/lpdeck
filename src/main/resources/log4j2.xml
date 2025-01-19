@@ -4,8 +4,9 @@
         <Console name="SysOut" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
         </Console>
-        <RandomAccessFile name="File" fileName="logs/latest.log">
+        <RandomAccessFile name="File" fileName="${env:APPDATA}/lpdeck/logs/latest.log">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%c{1}/%level]: %msg%n" />
+            <Append value="false" />
         </RandomAccessFile>
         <GuiAppender name="Gui" />
     </Appenders>
