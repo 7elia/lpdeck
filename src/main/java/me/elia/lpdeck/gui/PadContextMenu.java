@@ -19,7 +19,6 @@ public class PadContextMenu extends JPopupMenu {
 
         this.setBorder(new EmptyBorder(5, 0, 5, 0));
 
-        String typeName = this.pad.isEdge() ? "Manager" : "Action";
         String active = null;
         if (this.pad.isEdge()) {
             for (Manager manager : ActionRegistry.MANAGERS) {
@@ -40,13 +39,13 @@ public class PadContextMenu extends JPopupMenu {
             }
         }
         if (active != null) {
-            JLabel activeLabel = new JLabel(String.format("<html><b>Current %s:</b><br>%s</html", typeName, active));
+            JLabel activeLabel = new JLabel(String.format("<html><b>Current %s:</b><br>%s</html", this.pad.getTypeName(), active));
             activeLabel.setBorder(new EmptyBorder(0, 5, 5, 0));
             this.add(activeLabel);
             this.add(new JSeparator());
         }
         {
-            JMenuItem item = new JMenuItem("Set " + typeName, IconFontSwing.buildIcon(FontAwesome.UPLOAD, 16, Color.WHITE));
+            JMenuItem item = new JMenuItem("Set " + this.pad.getTypeName(), IconFontSwing.buildIcon(FontAwesome.UPLOAD, 16, Color.WHITE));
             item.addActionListener(e -> {
                 JDialog dialog = new ActionSelectDialog(this.pad);
                 dialog.setLocationRelativeTo(this.pad.getFrame());
@@ -55,7 +54,7 @@ public class PadContextMenu extends JPopupMenu {
             this.add(item);
         }
         {
-            JMenuItem item = new JMenuItem("Clear " + typeName, IconFontSwing.buildIcon(FontAwesome.TRASH_O, 16, Color.WHITE));
+            JMenuItem item = new JMenuItem("Clear " + this.pad.getTypeName(), IconFontSwing.buildIcon(FontAwesome.TRASH_O, 16, Color.WHITE));
             item.addActionListener(e -> {
                 if (this.pad.isEdge()) {
                     Manager manager;
@@ -65,7 +64,7 @@ public class PadContextMenu extends JPopupMenu {
                 } else {
                     Action action;
                     if ((action = this.getAction()) != null) {
-                        action.setPos(null);
+                        action.clearPos();
                     }
                 }
                 Lpdeck.getInstance().getActionRegistry().save();

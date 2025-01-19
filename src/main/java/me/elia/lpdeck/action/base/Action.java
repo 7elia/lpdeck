@@ -24,7 +24,16 @@ public abstract class Action {
         this.setColor();
     }
 
-    public abstract void press();
+    public abstract void onPress();
+
+    public void clearPos() {
+        this.setColor(Color.BLACK);
+        this.pos = null;
+    }
+
+    public void setPos(Pad pad) {
+        this.setPos(new Point(pad.getX(), pad.getY()));
+    }
 
     public void setPos(Point pos) {
         this.setColor(Color.BLACK);

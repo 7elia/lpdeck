@@ -16,7 +16,7 @@ public class WebSocketManager extends Manager {
     }
 
     @Override
-    public void onPressed() {
+    public void onPress() {
         this.client.getServer().restart();
     }
 }

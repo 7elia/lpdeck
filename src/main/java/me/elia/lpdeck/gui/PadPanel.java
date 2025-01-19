@@ -115,4 +115,8 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
             this.setForeground(swingColor);
         }
     }
+
+    public String getTypeName() {
+        return this.edge ? "Manager" : "Action";
+    }
 }

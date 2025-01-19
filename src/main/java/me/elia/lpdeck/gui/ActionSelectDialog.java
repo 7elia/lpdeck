@@ -15,7 +15,7 @@ public class ActionSelectDialog extends JDialog {
     private JComboBox<?> dropdown;
 
     public ActionSelectDialog(PadPanel pad) {
-        super(pad.getFrame(), "Set " + (pad.isEdge() ? "Manager" : "Action"));
+        super(pad.getFrame(), "Set " + pad.getTypeName());
 
         this.pad = pad;
 
@@ -31,7 +31,7 @@ public class ActionSelectDialog extends JDialog {
         panel.setLayout(new BorderLayout());
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        panel.add(new JLabel("Select " + (this.pad.isEdge() ? "Manager" : "Action") + ":"), BorderLayout.NORTH);
+        panel.add(new JLabel("Select " + this.pad.getTypeName() + ":"), BorderLayout.NORTH);
 
         this.dropdown = new JComboBox<>(this.pad.isEdge() ? ActionRegistry.MANAGERS.toArray(new Manager[0]) : ActionRegistry.ACTIONS.toArray(new Action[0]));
         panel.add(this.dropdown, BorderLayout.SOUTH);
@@ -49,10 +49,18 @@ public class ActionSelectDialog extends JDialog {
                 return;
             }
             if (this.pad.isEdge()) {
+                Manager prev = Lpdeck.getInstance().getActionRegistry().getManagerAt(this.pad.getAsButton());
+                if (prev != null) {
+                    prev.setPos(null);
+                }
                 ((Manager) this.dropdown.getSelectedItem()).setPos(this.pad.getAsButton());
             } else {
                 Pad pad = this.pad.getAsPad();
-                ((Action) this.dropdown.getSelectedItem()).setPos(new Point(pad.getX(), pad.getY()));
+                Action prev = Lpdeck.getInstance().getActionRegistry().getActionAt(pad);
+                if (prev != null) {
+                    prev.clearPos();
+                }
+                ((Action) this.dropdown.getSelectedItem()).setPos(pad);
             }
             Lpdeck.getInstance().getActionRegistry().save();
             this.dispose();

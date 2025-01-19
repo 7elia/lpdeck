@@ -16,7 +16,7 @@ public class SpotifyPatchAction extends Action implements ServerListener {
     }
 
     @Override
-    public void press() {
+    public void onPress() {
         if (this.playing) {
             ServerTarget.SPOTIFY.sendCommand("pause");
         }

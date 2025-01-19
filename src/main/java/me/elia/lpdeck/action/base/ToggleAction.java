@@ -23,7 +23,7 @@ public abstract class ToggleAction extends Action {
     }
 
     @Override
-    public final void press() {
+    public final void onPress() {
         this.toggle();
         this.value = !this.value;
         this.setColor();

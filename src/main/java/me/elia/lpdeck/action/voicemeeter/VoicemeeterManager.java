@@ -12,7 +12,7 @@ public class VoicemeeterManager extends Manager implements VoicemeeterListener {
     }
 
     @Override
-    public void onPressed() {
+    public void onPress() {
         this.client.getVoicemeeter().restart();
     }
 

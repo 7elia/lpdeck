@@ -13,6 +13,7 @@ import net.thecodersbreakfast.lp4j.api.Button;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.io.File;
@@ -178,14 +179,43 @@ public class ActionRegistry implements LaunchpadListener {
         }
     }
 
+    @Nullable
+    public Action getActionAt(Pad pad) {
+        return this.getActionAt(pad.getX(), pad.getY());
+    }
+
+    @Nullable
+    public Action getActionAt(int x, int y) {
+        return this.getActionAt(new Point(x, y));
+    }
+
+    @Nullable
+    public Action getActionAt(Point pos) {
+        for (Action action : ACTIONS) {
+            if (pos.equals(action.getPos())) {
+                return action;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public Manager getManagerAt(Button pos) {
+        for (Manager manager : MANAGERS) {
+            if (pos.equals(manager.getPos())) {
+                return manager;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void onPadPressed(Pad pad, long l) {
-        for (Action action : ACTIONS) {
-            if (action.getPos() != null && action.getPos().x == pad.getX() && action.getPos().y == pad.getY()) {
-                action.press();
-                LOGGER.info("Activated pad action '{}' at ({}, {}).", action.getKey(), pad.getX(), pad.getY());
-                return;
-            }
+        Action action = this.getActionAt(pad.getX(), pad.getY());
+        if (action != null) {
+            action.onPress();
+            LOGGER.info("Activated pad action '{}' at ({}, {}).", action.getKey(), pad.getX(), pad.getY());
+            return;
         }
         LOGGER.info("No action registered for pad ({}, {}).", pad.getX(), pad.getY());
     }
@@ -195,12 +225,11 @@ public class ActionRegistry implements LaunchpadListener {
 
     @Override
     public void onButtonPressed(Button button, long l) {
-        for (Manager manager : MANAGERS) {
-            if (manager.getPos().equals(button)) {
-                manager.onPressed();
-                LOGGER.info("Activated manager '{}' at {} ({}).", manager.getCategory().name(), button.getCoordinate(), button.isTopButton() ? "top" : "right");
-                return;
-            }
+        Manager manager = this.getManagerAt(button);
+        if (manager != null) {
+            manager.onPress();
+            LOGGER.info("Activated manager '{}' at {} ({}).", manager.getCategory().name(), button.getCoordinate(), button.isTopButton() ? "top" : "right");
+            return;
         }
         LOGGER.info("No manager registered at {} ({}).", button.getCoordinate(), button.isTopButton() ? "top" : "right");
     }

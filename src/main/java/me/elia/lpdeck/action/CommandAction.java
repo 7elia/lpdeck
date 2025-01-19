@@ -13,7 +13,7 @@ public class CommandAction extends Action {
     }
 
     @Override
-    public void press() {
+    public void onPress() {
         this.target.sendCommand(this.getId());
     }
 }

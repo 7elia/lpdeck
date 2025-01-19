@@ -16,7 +16,7 @@ public abstract class Manager {
         this.client = Lpdeck.getInstance();
     }
 
-    public abstract void onPressed();
+    public abstract void onPress();
 
     public void setPos(Button pos) {
         this.setColor(Color.BLACK);
