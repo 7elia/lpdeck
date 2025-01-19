@@ -73,7 +73,7 @@ public class Lpdeck implements Closeable {
         this.voicemeeter.start();
 
         SpotifyPatcher.patch(false);
-        DiscordPatcher.patch();
+        DiscordPatcher.patch(false);
 
         this.actionRegistry.register();
 

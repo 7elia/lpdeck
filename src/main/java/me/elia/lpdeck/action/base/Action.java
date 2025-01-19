@@ -50,4 +50,9 @@ public abstract class Action {
     public String getKey() {
         return this.category.name().toLowerCase() + "." + this.id;
     }
+
+    @Override
+    public String toString() {
+        return this.getKey();
+    }
 }

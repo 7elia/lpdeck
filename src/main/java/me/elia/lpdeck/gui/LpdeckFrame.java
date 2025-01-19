@@ -1,22 +1,19 @@
 package me.elia.lpdeck.gui;
 
-import com.formdev.flatlaf.ui.FlatBorder;
 import me.elia.lpdeck.gui.appenders.GuiAppender;
 import me.elia.lpdeck.gui.listener.SimpleDocumentListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.util.Objects;
 
 public class LpdeckFrame extends JFrame {
-    private static final Color BACKGROUND = new Color(29, 29, 29);
+    public static final Color BACKGROUND = new Color(29, 29, 29);
 
     public LpdeckFrame() {
         super("Lpdeck");
@@ -27,7 +24,6 @@ public class LpdeckFrame extends JFrame {
         this.setBackground(BACKGROUND);
 
         this.setLayout(new BorderLayout());
-
         this.add(this.createLaunchpad(), BorderLayout.CENTER);
         this.add(this.createConsole(), BorderLayout.EAST);
     }
@@ -68,7 +64,7 @@ public class LpdeckFrame extends JFrame {
 
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
-                PadPanel pad = new PadPanel(x, y);
+                PadPanel pad = new PadPanel(x, y, this);
                 pad.init();
                 gridPanel.add(pad);
                 gridPanel.revalidate();

@@ -13,13 +13,12 @@ This can be avoided by using the `JAR Application` configuration type. I have mi
 - Voicemeeter integration (I'm using Banana).
 - Discord integration (Requires Vencord). 
 
-### Installation
+### Run from source
 
 - Clone the repository.
 - Run `./gradlew build`.
 - Install [Spicetify](https://spicetify.app/docs/advanced-usage/installation).
 - Install [Vencord](https://vencord.dev/download/).
-- Install the `lpdeck.js` Spicetify extension (found at `lpdeck-spotify/dist`, guide on how to install extensions locally is in the credits section).
 - Make sure your launchpad is plugged into the PC itself. If you're using a USB hub, make sure it is on low power mode, or it won't work consistently (manual can be found in the credits section).
 - Run the .jar file in `build/libs`.
 

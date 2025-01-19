@@ -11,27 +11,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
+@Getter
 public class PadPanel extends JPanel implements LaunchpadLightListener {
-    private final int x;
-    private final int y;
-    @Getter private final boolean edge;
+    private final int padX;
+    private final int padY;
+    private final boolean edge;
+    private final JFrame frame;
 
-    public PadPanel(int x, int y) {
+    public PadPanel(int padX, int padY, JFrame frame) {
         super();
 
-        this.x = x;
-        this.y = y;
-        this.edge = this.x == 8 || this.y == 0;
+        this.padX = padX;
+        this.padY = padY;
+        this.edge = this.padX == 8 || this.padY == 0;
+        this.frame = frame;
 
         Lpdeck.getInstance().getLaunchpadClient().addLightListener(this);
     }
 
-    public int getPadX() {
-        return this.x;
+    public net.thecodersbreakfast.lp4j.api.Button getAsButton() {
+        if (!this.edge) {
+            return null;
+        }
+        return this.padX == 8
+               ? net.thecodersbreakfast.lp4j.api.Button.atRight(this.padY - 1)
+               : net.thecodersbreakfast.lp4j.api.Button.atTop(this.padX);
     }
 
-    public int getPadY() {
-        return this.y;
+    public Pad getAsPad() {
+        return this.edge ? null : Pad.at(PadPanel.this.padX, PadPanel.this.padY - 1);
     }
 
     public void init() {
@@ -46,13 +54,11 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
                     ActionRegistry registry = Lpdeck.getInstance().getActionRegistry();
                     if (PadPanel.this.edge) {
                         registry.onButtonPressed(
-                                PadPanel.this.x == 8
-                                ? net.thecodersbreakfast.lp4j.api.Button.atRight(PadPanel.this.y - 1)
-                                : net.thecodersbreakfast.lp4j.api.Button.atTop(PadPanel.this.x),
+                                PadPanel.this.getAsButton(),
                                 System.currentTimeMillis()
                         );
                     } else {
-                        registry.onPadPressed(Pad.at(PadPanel.this.x, PadPanel.this.y - 1), System.currentTimeMillis());
+                        registry.onPadPressed(PadPanel.this.getAsPad(), System.currentTimeMillis());
                     }
                 } else if (SwingUtilities.isRightMouseButton(e)) {
                     new PadContextMenu(PadPanel.this).show(PadPanel.this, e.getX(), e.getY());
@@ -60,7 +66,7 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
             }
         });
 
-        if (this.x == 8 && this.y == 0) {
+        if (this.padX == 8 && this.padY == 0) {
             this.setVisible(false);
         }
     }
@@ -101,8 +107,11 @@ public class PadPanel extends JPanel implements LaunchpadLightListener {
     }
 
     private void changeColorAt(Point point, net.thecodersbreakfast.lp4j.api.Color color) {
-        if (point.x == this.x && point.y == this.y) {
+        if (point.x == this.padX && point.y == this.padY) {
             Color swingColor = new Color(color.getRed() * 255 / 3, color.getGreen() * 255 / 3, 0);
+            if (color.equals(net.thecodersbreakfast.lp4j.api.Color.BLACK)) {
+                swingColor = Color.GRAY;
+            }
             this.setForeground(swingColor);
         }
     }

@@ -9,8 +9,12 @@ import javax.swing.*;
 import java.util.Arrays;
 
 public class Main {
+    public static boolean IS_DEVELOPMENT;
+
     @SuppressWarnings("resource")
     public static void main(String[] args) {
+        IS_DEVELOPMENT = Arrays.stream(args).anyMatch(v -> v.equalsIgnoreCase("-development"));
+
         Lpdeck deck = new Lpdeck();
         deck.start();
 

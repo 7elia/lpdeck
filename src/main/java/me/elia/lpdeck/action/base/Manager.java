@@ -34,4 +34,9 @@ public abstract class Manager {
         }
         this.client.getLaunchpadClient().setButtonLight(this.pos, color, BackBufferOperation.NONE);
     }
+
+    @Override
+    public String toString() {
+        return this.category.name();
+    }
 }

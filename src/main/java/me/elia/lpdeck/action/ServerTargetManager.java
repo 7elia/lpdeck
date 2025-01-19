@@ -25,8 +25,8 @@ public class ServerTargetManager extends Manager implements ServerListener {
 
     @Override
     public void onPressed() {
-        this.client.getServer().closeTarget(this.target);
         this.callback.callback();
+        this.client.getServer().closeTarget(this.target);
     }
 
     @Override

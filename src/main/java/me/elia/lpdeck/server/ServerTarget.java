@@ -26,6 +26,10 @@ public enum ServerTarget {
         Lpdeck.getInstance().getServer().sendCommand(this, command);
     }
 
+    public boolean hasClients() {
+        return Lpdeck.getInstance().getServer().hasClientsFor(this);
+    }
+
     public static ServerTarget of(String id) {
         return Arrays.stream(values()).filter(v -> v.name().equalsIgnoreCase(id)).findFirst().orElse(null);
     }

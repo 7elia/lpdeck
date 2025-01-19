@@ -1,5 +1,6 @@
 package me.elia.lpdeck.patch;
 
+import me.elia.lpdeck.server.ServerTarget;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,7 @@ public class DiscordPatcher {
     private static final Path RENDERER_PATH = Path.of(System.getenv("AppData"), "Vencord", "dist", "renderer.js");
     private static final String REPLACEMENT_HEADER = "\n// ---- LP DECK REPLACE START ----\n";
 
-    public static void patch() {
+    public static void patch(boolean restart) {
         try {
             String renderer = FileUtils.readFileToString(RENDERER_PATH.toFile(), StandardCharsets.UTF_8);
             if (renderer.contains(REPLACEMENT_HEADER)) {
@@ -25,6 +26,11 @@ public class DiscordPatcher {
             renderer += REPLACEMENT_HEADER + IOUtils.toString(Objects.requireNonNull(DiscordPatcher.class.getClassLoader().getResourceAsStream("patches/discord.js")), StandardCharsets.UTF_8);
             FileUtils.writeStringToFile(RENDERER_PATH.toFile(), renderer, StandardCharsets.UTF_8, false);
             LOGGER.info("Successfully patched Discord.");
+
+            if (restart && ServerTarget.DISCORD.hasClients()) {
+                LOGGER.info("Attemping Discord restart...");
+                ServerTarget.DISCORD.sendCommand("restart");
+            }
         } catch (IOException e) {
             LOGGER.error("Error while patching renderer file", e);
         }

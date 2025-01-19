@@ -48,12 +48,12 @@ public class ActionRegistry implements LaunchpadListener {
         this.add(new SyncedToggleAction("toggle_deafen", ActionCategory.DISCORD, ServerTarget.DISCORD, "deafened"));
         this.add(new SyncedToggleAction("toggle_krisp", ActionCategory.DISCORD, ServerTarget.DISCORD, "krisp"));
         this.add(new SyncedToggleAction("toggle_screenshare", ActionCategory.DISCORD, ServerTarget.DISCORD, "screensharing"));
+        this.add(new SyncedToggleAction("toggle_camera", ActionCategory.DISCORD, ServerTarget.DISCORD, "camera"));
         this.add(new SyncedToggleAction("toggle_streamer_mode", ActionCategory.DISCORD, ServerTarget.DISCORD, "streamer_mode"));
-        this.add(new DiscordPatchAction());
 
         this.add(new ServerTargetManager(ActionCategory.SPOTIFY, ServerTarget.SPOTIFY, () -> SpotifyPatcher.patch(true)));
         this.add(new VoicemeeterManager());
-        this.add(new ServerTargetManager(ActionCategory.DISCORD, ServerTarget.DISCORD, DiscordPatcher::patch));
+        this.add(new ServerTargetManager(ActionCategory.DISCORD, ServerTarget.DISCORD, () -> DiscordPatcher.patch(true)));
         this.add(new WebSocketManager());
     }
 
