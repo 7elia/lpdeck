@@ -24,7 +24,7 @@ import java.nio.file.Path;
 public class Lpdeck implements Closeable {
     private static Lpdeck INSTANCE;
     private static final Logger LOGGER = LogManager.getLogger("Lpdeck");
-    @Getter private final Path roamingPath;
+    private final Path roamingPath;
     @Getter private final ActionRegistry actionRegistry;
     private final Launchpad launchpad;
     @Getter private final ListenableMidiLaunchpadClient launchpadClient;
@@ -36,7 +36,10 @@ public class Lpdeck implements Closeable {
 
         LOGGER.info("Starting client...");
 
-        this.roamingPath = Path.of(System.getenv("AppData")).resolve("lpdeck");
+        this.roamingPath = getRoamingPath();
+        if (this.roamingPath == null) {
+            throw new RuntimeException("OS not implemented!");
+        }
         if (!this.roamingPath.toFile().exists() && !this.roamingPath.toFile().mkdirs()) {
             LOGGER.warn("Couldn't create AppData folder.");
         }
@@ -58,6 +61,16 @@ public class Lpdeck implements Closeable {
         return INSTANCE;
     }
 
+    public Path getRoamingPath() {
+        String os = System.getProperty("os.name");
+        if (os.startsWith("Windows")) {
+            return Path.of(System.getenv("AppData")).resolve("lpdeck");
+        } else if (os.startsWith("Linux")) {
+            return Path.of(System.getenv("HOME")).resolve(".config/lpdeck");
+        }
+        return null;
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public File getRoamingFile(String name) throws IOException {
         File file = this.roamingPath.resolve(name).toFile();
@@ -70,10 +83,11 @@ public class Lpdeck implements Closeable {
 
     public void start() {
         this.server.start();
-        this.voicemeeter.start();
-
-        SpotifyPatcher.patch(false);
-        DiscordPatcher.patch(false);
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            this.voicemeeter.start();
+            SpotifyPatcher.patch(false);
+            DiscordPatcher.patch(false);
+        }
 
         this.actionRegistry.register();
 

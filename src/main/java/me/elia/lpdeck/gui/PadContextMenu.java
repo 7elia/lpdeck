@@ -22,7 +22,7 @@ public class PadContextMenu extends JPopupMenu {
         String active = null;
         if (this.pad.isEdge()) {
             for (Manager manager : ActionRegistry.MANAGERS) {
-                if (manager.getPos().equals(this.pad.getAsButton())) {
+                if (manager.getPos() != null && manager.getPos().equals(this.pad.getAsButton())) {
                     active = manager.toString();
                     break;
                 }
