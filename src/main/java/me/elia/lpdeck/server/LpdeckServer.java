@@ -62,6 +62,7 @@ public class LpdeckServer {
         }
         try {
             this.websocket.stop();
+            LOGGER.info("Closed Lpdeck WS.");
         } catch (InterruptedException e) {
             LOGGER.error("Error while stopping Lpdeck WS", e);
         }

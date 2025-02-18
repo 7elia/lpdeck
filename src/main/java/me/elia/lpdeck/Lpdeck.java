@@ -107,6 +107,8 @@ public class Lpdeck implements Closeable {
 
         this.server.stop();
 
-        Voicemeeter.logout();
+        try {
+            Voicemeeter.logout();
+        } catch (NullPointerException ignored) {}
     }
 }
